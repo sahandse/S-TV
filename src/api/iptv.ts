@@ -1,4 +1,4 @@
-import type { Channel, Stream, Logo, Country, Category } from '../types';
+import type { Channel, Stream, Logo, Country, Category, Language, Guide, Feed } from '../types';
 
 const BASE = 'https://iptv-org.github.io/api';
 
@@ -26,3 +26,6 @@ export const getStreams = () => get<Stream[]>('streams.json');
 export const getLogos = () => get<Logo[]>('logos.json');
 export const getCountries = () => get<Country[]>('countries.json');
 export const getCategories = () => get<Category[]>('categories.json');
+export const getLanguages = () => get<Language[]>('languages.json');
+export const getGuides = () => get<Guide[]>('guides.json');
+export const getFeeds = () => get<Feed[]>('feeds.json');

@@ -3,6 +3,8 @@ import type { Channel, Stream } from '../types';
 import VideoPlayer from './VideoPlayer';
 import ChannelLogo from './ChannelLogo';
 import { FA_CATEGORIES } from './ChannelCard';
+import { useUser } from '../context/UserContext';
+import { useIPTV } from '../context/IPTVContext';
 
 interface Props {
   channel: Channel;
@@ -18,6 +20,15 @@ const QUALITY_LABELS: Record<string, string> = {
 };
 
 export default function PlayerModal({ channel, stream, logoUrl, countryName, countryFlag, onClose }: Props) {
+  const { addRecent, isFav, toggleFav } = useUser();
+  const { guideMap } = useIPTV();
+  const guideUrl = guideMap.get(channel.id);
+  const fav = isFav(channel.id);
+
+  useEffect(() => {
+    addRecent(channel.id);
+  }, [channel.id]);
+
   useEffect(() => {
     const handle = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handle);
@@ -57,7 +68,20 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
           <ChannelLogo url={logoUrl} name={channel.name} className="w-14 h-14 shrink-0 rounded-xl" />
 
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-bold text-white leading-snug">{channel.name}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-white leading-snug">{channel.name}</h2>
+              <button
+                onClick={() => toggleFav(channel.id)}
+                className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                  fav ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-zinc-500 hover:text-red-400'
+                }`}
+                aria-label={fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+              >
+                <svg viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+              </button>
+            </div>
 
             <div className="flex items-center flex-wrap gap-2 mt-2">
               {countryFlag && countryName && (
@@ -71,10 +95,7 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
                 </span>
               )}
               {channel.categories.slice(0, 2).map((cat) => (
-                <span
-                  key={cat}
-                  className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full"
-                >
+                <span key={cat} className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">
                   {FA_CATEGORIES[cat] ?? cat}
                 </span>
               ))}
@@ -85,16 +106,28 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
             )}
           </div>
 
-          {channel.website && (
-            <a
-              href={channel.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 text-xs text-violet-400 hover:text-violet-300 underline underline-offset-2 whitespace-nowrap mt-1"
-            >
-              وبسایت ↗
-            </a>
-          )}
+          <div className="shrink-0 flex flex-col items-end gap-2 mt-1">
+            {channel.website && (
+              <a
+                href={channel.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-violet-400 hover:text-violet-300 underline underline-offset-2 whitespace-nowrap"
+              >
+                وبسایت ↗
+              </a>
+            )}
+            {guideUrl && (
+              <a
+                href={guideUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-2 whitespace-nowrap"
+              >
+                برنامه EPG ↗
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useIPTV } from '../context/IPTVContext';
+import { useUser } from '../context/UserContext';
 import CountryCard from '../components/CountryCard';
 import CategoryCard from '../components/CategoryCard';
 import ChannelCard from '../components/ChannelCard';
@@ -33,8 +34,13 @@ function getFlagEmoji(code: string) {
 
 export default function Home() {
   const { channels, streamMap, logoMap, countries, categories, countByCountry, countByCategory } = useIPTV();
+  const { recent } = useUser();
   const [playing, setPlaying] = useState<Playing | null>(null);
   const countryMap = new Map(countries.map(c => [c.code, c]));
+
+  const recentChannels = recent
+    .map(id => channels.find(ch => ch.id === id))
+    .filter((ch): ch is Channel => !!ch && streamMap.has(ch.id));
 
   const topCountries = countries
     .filter(c => countByCountry.has(c.code))
@@ -117,6 +123,33 @@ export default function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+
+        {/* ═══ RECENTLY WATCHED ═══ */}
+        {recentChannels.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-lg">🕐</span>
+              <h2 className="text-base font-bold text-white">آخرین تماشاها</h2>
+            </div>
+            <div className="scroll-row">
+              {recentChannels.map(ch => {
+                const stream = streamMap.get(ch.id)!;
+                const country = countryMap.get(ch.country);
+                return (
+                  <div key={ch.id} className="shrink-0 w-36">
+                    <ChannelCard
+                      channel={ch}
+                      stream={stream}
+                      logoUrl={logoMap.get(ch.id)}
+                      countryFlag={country?.flag || getFlagEmoji(ch.country)}
+                      onClick={() => setPlaying({ channel: ch, stream })}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ═══ COUNTRIES ═══ */}
         <section>

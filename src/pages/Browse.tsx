@@ -35,10 +35,11 @@ export default function Browse({ mode }: {
   mode: 'country' | 'category' | 'all-countries' | 'all-genres'
 }) {
   const { code, id } = useParams<{ code?: string; id?: string }>();
-  const { channels, streamMap, logoMap, countries, categories, countByCountry, countByCategory } = useIPTV();
+  const { channels, streamMap, logoMap, countries, categories, languages, countByCountry, countByCategory, channelLanguages } = useIPTV();
 
   const [search, setSearch] = useState('');
   const [qualityFilter, setQualityFilter] = useState<'all' | 'hd' | 'sd'>('all');
+  const [langFilter, setLangFilter] = useState<string>('all');
   const [playing, setPlaying] = useState<Playing | null>(null);
 
   const countryMap = new Map(countries.map(c => [c.code, c]));
@@ -82,8 +83,12 @@ export default function Browse({ mode }: {
       });
     }
 
+    if (langFilter !== 'all') {
+      list = list.filter(ch => channelLanguages.get(ch.id)?.includes(langFilter));
+    }
+
     return list;
-  }, [channels, mode, code, id, search, qualityFilter, streamMap, isListMode]);
+  }, [channels, mode, code, id, search, qualityFilter, langFilter, streamMap, channelLanguages, isListMode]);
 
   const allCountries = useMemo(() =>
     mode !== 'all-countries' ? [] :
@@ -175,35 +180,50 @@ export default function Browse({ mode }: {
         {!isListMode && (
           <>
             {/* Search + filters */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <div className="relative flex-1">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none">
-                  <circle cx={11} cy={11} r={8} /><path strokeLinecap="round" d="m21 21-4.35-4.35" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="جستجو در کانال‌ها…"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="w-full bg-zinc-900 border border-white/8 rounded-xl pr-9 pl-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/60 transition-colors"
-                />
+            <div className="flex flex-col gap-3 mb-6">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none">
+                    <circle cx={11} cy={11} r={8} /><path strokeLinecap="round" d="m21 21-4.35-4.35" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="جستجو در کانال‌ها…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full bg-zinc-900 border border-white/8 rounded-xl pr-9 pl-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/60 transition-colors"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {([['all', 'همه'], ['hd', 'HD'], ['sd', 'SD']] as const).map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => setQualityFilter(val)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        qualityFilter === val
+                          ? 'bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-900/30'
+                          : 'bg-zinc-900 border-white/8 text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-2">
-                {([['all', 'همه'], ['hd', 'HD'], ['sd', 'SD']] as const).map(([val, label]) => (
-                  <button
-                    key={val}
-                    onClick={() => setQualityFilter(val)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      qualityFilter === val
-                        ? 'bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-900/30'
-                        : 'bg-zinc-900 border-white/8 text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              {/* Language filter */}
+              {languages.length > 0 && (
+                <select
+                  value={langFilter}
+                  onChange={e => setLangFilter(e.target.value)}
+                  className="self-start bg-zinc-900 border border-white/8 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500/60 transition-colors cursor-pointer"
+                >
+                  <option value="all">همه زبان‌ها</option>
+                  {languages.map(lang => (
+                    <option key={lang.code} value={lang.code}>{lang.name}</option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {filtered.length === 0 ? (

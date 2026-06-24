@@ -1,5 +1,7 @@
 import type { Channel, Stream } from '../types';
 import ChannelLogo from './ChannelLogo';
+import { useUser } from '../context/UserContext';
+import { useIPTV } from '../context/IPTVContext';
 
 interface Props {
   channel: Channel;
@@ -37,6 +39,10 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
   const gradIdx = channel.name.charCodeAt(0) % BG_GRADIENTS.length;
   const grad = BG_GRADIENTS[gradIdx];
   const qInfo = qualityInfo(stream.quality);
+  const { isFav, toggleFav } = useUser();
+  const { guideMap } = useIPTV();
+  const fav = isFav(channel.id);
+  const hasGuide = guideMap.has(channel.id);
 
   return (
     <button
@@ -45,19 +51,23 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
     >
       {/* Top visual section */}
       <div className={`relative h-28 bg-gradient-to-br ${grad} flex items-center justify-center`}>
-        {/* Noise texture overlay */}
         <div className="absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }}
         />
 
         <ChannelLogo url={logoUrl} name={channel.name} className="w-16 h-16 relative z-10" />
 
-        {/* Top badges */}
-        <div className="absolute top-2 right-2">
+        {/* Live badge top-right */}
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
           <span className="flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
             <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
             زنده
           </span>
+          {hasGuide && (
+            <span className="flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+              EPG
+            </span>
+          )}
         </div>
 
         {qInfo && (
@@ -67,6 +77,21 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
             </span>
           </div>
         )}
+
+        {/* Favorite button */}
+        <button
+          onClick={e => { e.stopPropagation(); toggleFav(channel.id); }}
+          className={`absolute bottom-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-20 ${
+            fav
+              ? 'bg-red-500/80 text-white'
+              : 'bg-black/40 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-red-400'
+          }`}
+          aria-label={fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+        >
+          <svg viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </button>
 
         {/* Play overlay on hover */}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

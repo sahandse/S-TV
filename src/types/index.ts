@@ -44,3 +44,26 @@ export interface Category {
   name: string;
   description: string | null;
 }
+
+export interface Language {
+  name: string;
+  code: string;
+}
+
+export interface Guide {
+  channel: string;
+  site: string;
+  site_id: string;
+  site_url: string;
+  lang: string;
+}
+
+export interface Feed {
+  channel: string;
+  id: string;
+  name: string;
+  is_main: boolean;
+  broadcast_area: string[];
+  languages: string[];
+  format: string | null;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "اس‌تی‌وی — پخش زنده ماهواره‌ای",
+  "short_name": "S-TV",
+  "description": "هزاران کانال ماهواره‌ای زنده از سراسر جهان",
+  "start_url": "/S-TV/",
+  "scope": "/S-TV/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#7c3aed",
+  "background_color": "#08080e",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/S-TV/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
