@@ -5,6 +5,7 @@ import { useUser } from '../context/UserContext';
 import VideoPlayer from '../components/VideoPlayer';
 import EPGGuide from '../components/EPGGuide';
 import ChannelLogo from '../components/ChannelLogo';
+import { FA_CATEGORIES } from '../components/ChannelCard';
 import type { Channel } from '../types';
 
 export default function TV() {
@@ -13,15 +14,22 @@ export default function TV() {
   const { favorites, addRecent, toggleFav } = useUser();
   const [filter, setFilter] = useState('');
   const [onlyFav, setOnlyFav] = useState(false);
+  const [category, setCategory] = useState('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [count, setCount] = useState(60);
   const [controllerReady, setControllerReady] = useState(false);
   const available = useMemo(() => channels.filter(ch => streamMap.has(ch.id)), [channels, streamMap]);
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    available.forEach(ch => ch.categories.forEach(cat => counts.set(cat, (counts.get(cat) ?? 0) + 1)));
+    return [...counts.entries()].sort((a,b) => b[1] - a[1]);
+  }, [available]);
   const visible = useMemo(() => available.filter(ch =>
     (!onlyFav || favorites.has(ch.id)) &&
+    (category === 'all' || ch.categories.includes(category)) &&
     (!filter.trim() || ch.name.toLocaleLowerCase().includes(filter.trim().toLocaleLowerCase()))
-  ), [available, favorites, onlyFav, filter]);
+  ), [available, favorites, onlyFav, category, filter]);
   const selected: Channel | undefined = available.find(ch => ch.id === selectedId);
   const activeSource = selected ? streamMap.get(selected.id) : undefined;
   const choose = (ch: Channel) => {
@@ -100,6 +108,10 @@ export default function TV() {
               <h2 className="font-bold">کانال‌ها <span className="text-xs text-zinc-400">({visible.length.toLocaleString('fa-IR')})</span></h2>
               <button type="button" onClick={() => { setOnlyFav(v => !v); setCount(60); }} aria-pressed={onlyFav} className={`tv-focus rounded-lg px-3 py-2 text-xs ${onlyFav ? 'bg-violet-600' : 'bg-white/10'}`}>♥ علاقه‌مندی‌ها</button>
             </div>
+            <div className="mb-3 flex gap-2 overflow-x-auto pb-2" aria-label="دسته‌بندی کانال‌ها">
+              <button type="button" className={`tv-focus shrink-0 rounded-xl px-4 py-3 text-sm font-bold ${category === 'all' ? 'bg-violet-600 text-white' : 'bg-white/5 text-zinc-300'}`} aria-pressed={category === 'all'} onClick={() => {setCategory('all');setCount(60);}}>همه</button>
+              {categoryCounts.map(([id, total]) => <button key={id} type="button" aria-pressed={category === id} className={`tv-focus shrink-0 rounded-xl px-4 py-3 text-sm font-bold ${category === id ? 'bg-violet-600 text-white' : 'bg-white/5 text-zinc-300'}`} onClick={() => {setCategory(id);setCount(60);}}>{FA_CATEGORIES[id] ?? id} <span className="text-xs opacity-70">{total.toLocaleString('fa-IR')}</span></button>)}
+            </div>
             <input type="search" value={filter} onChange={e => { setFilter(e.target.value); setCount(60); }} placeholder="جستجوی کانال واقعی…" aria-label="جستجوی کانال" className="tv-focus mb-3 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm" />
             <div className="tv-list max-h-[52vh] space-y-1 overflow-y-auto lg:max-h-[65vh]">
               {visible.slice(0, count).map(ch => <div key={ch.id} className="flex items-center gap-1">
@@ -110,7 +122,7 @@ export default function TV() {
                 <button type="button" onClick={() => toggleFav(ch.id)} aria-label={favorites.has(ch.id) ? 'حذف از علاقه‌مندی' : 'افزودن به علاقه‌مندی'} className="tv-focus rounded-lg p-3 text-lg" >{favorites.has(ch.id) ? '♥' : '♡'}</button>
               </div>)}
               {visible.length > count && <button type="button" onClick={() => setCount(n => n + 60)} className="tv-focus w-full rounded-xl bg-violet-600/20 p-3 text-sm">نمایش کانال‌های بیشتر</button>}
-              {visible.length === 0 && <p className="p-5 text-center text-sm text-zinc-400">کانالی با این مشخصات پیدا نشد.</p>}
+              {visible.length === 0 && <p className="p-5 text-center text-sm text-zinc-400">کانالی با این مشخصات پیدا نشد. دسته یا جستجو را تغییر بده.</p>}
             </div>
           </aside>
           <main className="order-1 min-w-0 space-y-4 lg:order-2">
