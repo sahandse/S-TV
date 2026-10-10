@@ -24,6 +24,7 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
   const { guideMap, streamsByChannel } = useIPTV();
   const alternateSources = streamsByChannel.get(channel.id) ?? [stream];
   const [selectedUrl, setSelectedUrl] = useState(stream.url);
+  const [guideExpanded, setGuideExpanded] = useState(false);
   const guideUrl = guideMap.get(channel.id);
   const fav = isFav(channel.id);
 
@@ -43,6 +44,7 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
   }, []);
 
   const selectedStream = alternateSources.find(item => item.url === selectedUrl) ?? stream;
+  const guideAvailable = Boolean(guideUrl);
   const quality = selectedStream.quality ? QUALITY_LABELS[selectedStream.quality.toLowerCase()] ?? selectedStream.quality.toUpperCase() : null;
 
   return (
@@ -50,7 +52,7 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-2 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative w-full max-w-2xl max-h-[95dvh] overflow-y-auto bg-[#111118] border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/60 animate-slide-up">
+      <div className="relative w-full max-w-2xl max-h-[95dvh] overflow-y-auto bg-[#111118] border border-white/10 rounded-2xl shadow-2xl shadow-black/60 animate-slide-up">
 
         {/* Close */}
         <button
@@ -74,6 +76,25 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
           </div>
         )}
 
+        <section className="border-b border-white/10 px-4 py-3" aria-label="راهنمای برنامه کانال">
+          <button type="button" aria-expanded={guideExpanded} onClick={() => setGuideExpanded(v => !v)}
+            className="flex w-full items-center justify-between gap-3 rounded-lg py-1 text-right text-sm font-semibold text-zinc-200 hover:text-white">
+            <span>📅 راهنمای برنامه‌های تلویزیونی</span>
+            <span className="text-xs text-violet-300">{guideExpanded ? 'بستن −' : 'مشاهده +'}</span>
+          </button>
+          {guideExpanded && (
+            <div className="mt-3 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs leading-7 text-zinc-400">
+              {guideAvailable ? (
+                <>
+                  <p>برای این کانال یک منبع راهنمای برنامه ثبت شده است. زمان‌بندی زنده هنوز از این منبع در برنامه دریافت نمی‌شود.</p>
+                  <a href={guideUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex rounded-lg bg-violet-600/20 px-3 py-2 font-semibold text-violet-200 hover:bg-violet-600/30">باز کردن راهنمای اصلی ↗</a>
+                </>
+              ) : (
+                <p>برای این کانال هنوز راهنمای معتبر در فهرست منبع موجود نیست. اطلاعات برنامه فعلی یا بعدی حدس زده نمی‌شود.</p>
+              )}
+            </div>
+          )}
+        </section>
         {/* Info bar */}
         <div className="p-4 flex items-start gap-3">
           <ChannelLogo url={logoUrl} name={channel.name} className="w-14 h-14 shrink-0 rounded-xl" />
