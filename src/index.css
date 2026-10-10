@@ -92,3 +92,19 @@
   .tv-shell { font-size: 18px; }
   .tv-shell button, .tv-shell a { min-height: 48px; }
 }
+
+/* S-TV visual system: quiet cinema surfaces, comfortably readable on TV. */
+:root { color-scheme: dark; }
+body { background: #07090f; }
+.tv-shell { background-image: radial-gradient(ellipse at 70% -20%,rgba(117,68,222,.13),transparent 52%); }
+.tv-shell .tv-list { scrollbar-color: #5a5571 transparent; scrollbar-width: thin; }
+.tv-shell .tv-list button { transition: background-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+.tv-shell .tv-list button:focus-visible { transform: scale(1.015); position: relative; z-index: 1; }
+.tv-shell input, .tv-shell button, .tv-shell select { font-family: inherit; }
+@media (min-width: 1200px) {
+ .tv-shell .tv-list button { min-height: 58px; }
+ .tv-shell .tv-list .text-sm { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .tv-shell * { scroll-behavior: auto !important; }
+}
