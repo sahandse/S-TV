@@ -1,0 +1,66 @@
+import { useEffect, useState } from 'react';
+
+type Programme = { title: string; start: number; stop: number };
+
+function parseTime(value: string | null): number {
+  if (!value) return NaN;
+  const match = value.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?\s*([+-]\d{4})?/);
+  if (!match) return NaN;
+  const [, y, mo, d, h, mi, sec, zone] = match;
+  const timestamp = Date.UTC(+y, +mo - 1, +d, +h, +mi, +(sec || 0));
+  if (!zone) return timestamp;
+  const sign = zone[0] === '+' ? 1 : -1;
+  return timestamp - sign * (+zone.slice(1, 3) * 60 + +zone.slice(3, 5)) * 60000;
+}
+
+export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string; fallbackUrl?: string }) {
+  const [items, setItems] = useState<Programme[]>([]);
+  const [status, setStatus] = useState('');
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const source = localStorage.getItem('stv:xmltv-url')?.trim();
+    if (!source) { setStatus('برای نمایش جدول زنده، نشانی XMLTV را در تنظیمات ثبت کنید.'); setItems([]); return; }
+    let cancelled = false;
+    const controller = new AbortController();
+    setStatus('در حال دریافت زمان‌بندی واقعی…');
+    fetch(source, { signal: controller.signal })
+      .then(response => { if (!response.ok) throw new Error('HTTP ' + response.status); return response.text(); })
+      .then(xml => {
+        const doc = new DOMParser().parseFromString(xml, 'text/xml');
+        if (doc.querySelector('parsererror')) throw new Error('XML نامعتبر');
+        const programmes = Array.from(doc.getElementsByTagName('programme'))
+          .filter(node => node.getAttribute('channel') === channelId)
+          .map(node => ({
+            title: node.getElementsByTagName('title')[0]?.textContent?.trim() || '',
+            start: parseTime(node.getAttribute('start')),
+            stop: parseTime(node.getAttribute('stop')),
+          }))
+          .filter(item => item.title && Number.isFinite(item.start) && Number.isFinite(item.stop))
+          .sort((a, b) => a.start - b.start);
+        if (cancelled) return;
+        setItems(programmes);
+        setStatus(programmes.length ? '' : 'برای این شناسه کانال، برنامه‌ای در فایل XMLTV یافت نشد.');
+      })
+      .catch(() => { if (!cancelled) { setItems([]); setStatus('دریافت XMLTV ناموفق بود؛ آدرس، دسترسی CORS یا فرمت فایل را بررسی کنید.'); } });
+    return () => { cancelled = true; controller.abort(); };
+  }, [channelId]);
+
+  const current = items.find(item => item.start <= now && item.stop > now);
+  const next = items.find(item => item.start > now);
+  const format = (time: number) => new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit' }).format(time);
+
+  return (
+    <div className="space-y-2 text-xs text-zinc-300">
+      {status && <p className="leading-6 text-zinc-400">{status}</p>}
+      {current && <div className="rounded-lg bg-emerald-500/10 p-3"><span className="font-bold text-emerald-300">اکنون</span><p className="mt-1">{current.title} · {format(current.start)} تا {format(current.stop)}</p></div>}
+      {next && <div className="rounded-lg bg-white/5 p-3"><span className="font-bold text-violet-300">برنامه بعدی</span><p className="mt-1">{next.title} · {format(next.start)}</p></div>}
+      {fallbackUrl && <a href={fallbackUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-violet-300 underline">وب‌سایت راهنمای کانال ↗</a>}
+    </div>
+  );
+}
