@@ -23,11 +23,11 @@ export default function Search() {
   const results = useMemo(() => {
     const query = q.trim().toLowerCase();
     if (!query) return [];
-    return channels.filter(ch =>
+    return channels.filter(ch => streamMap.has(ch.id) && (
       ch.name.toLowerCase().includes(query) ||
       ch.alt_names.some(n => n.toLowerCase().includes(query))
-    );
-  }, [q, channels]);
+    ));
+  }, [q, channels, streamMap]);
 
   return (
     <div className="min-h-screen bg-[#07090f] pb-20">
@@ -66,7 +66,7 @@ export default function Search() {
               {results.length.toLocaleString('fa-IR')} نتیجه برای «{q}»
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {results.slice(0, limit).filter(ch => streamMap.has(ch.id)).map(ch => {
+              {results.slice(0, limit).map(ch => {
                 const stream = streamMap.get(ch.id)!;
                 const country = countryMap.get(ch.country);
                 return (
