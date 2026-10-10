@@ -12,6 +12,7 @@ export default function VideoPlayer({ url, title }: Props) {
   const [status, setStatus] = useState<'loading' | 'playing' | 'error'>('loading');
   const [errorMsg, setErrorMsg] = useState('');
   const [retryKey, setRetryKey] = useState(0);
+  const [requiresTap, setRequiresTap] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -19,9 +20,14 @@ export default function VideoPlayer({ url, title }: Props) {
 
     setStatus('loading');
     setErrorMsg('');
+    setRequiresTap(false);
     hlsRef.current?.destroy();
     hlsRef.current = null;
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
 
+    const startPlayback = () => video.play().catch(() => { setStatus('playing'); setRequiresTap(true); });
     const onError = (msg: string) => {
       setStatus('error');
       setErrorMsg(msg);
@@ -33,22 +39,25 @@ export default function VideoPlayer({ url, title }: Props) {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setStatus('playing');
-        video.play().catch(() => { setStatus('loading'); });
+        startPlayback();
       });
 
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (data.fatal) onError('خطا در بارگذاری پخش. این کانال ممکن است آفلاین یا محدود باشد.');
       });
 
-      hls.loadSource(url);
       hls.attachMedia(video);
+      hls.loadSource(url);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
-      const onLoaded = () => { setStatus('playing'); video.play().catch(() => { setStatus('loading'); }); };
+      const onLoaded = () => { setStatus('playing'); startPlayback(); };
       const onErr = () => onError('خطا در بارگذاری پخش.');
       video.addEventListener('loadedmetadata', onLoaded, { once: true });
       video.addEventListener('error', onErr, { once: true });
       return () => {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
         video.removeEventListener('loadedmetadata', onLoaded);
         video.removeEventListener('error', onErr);
       };
@@ -56,7 +65,7 @@ export default function VideoPlayer({ url, title }: Props) {
       onError('مرورگر شما از پخش HLS پشتیبانی نمی‌کند.');
     }
 
-    return () => { hlsRef.current?.destroy(); hlsRef.current = null; };
+    return () => { video.pause(); hlsRef.current?.destroy(); hlsRef.current = null; };
   }, [url, retryKey]);
 
   return (
@@ -68,6 +77,9 @@ export default function VideoPlayer({ url, title }: Props) {
         </div>
       )}
 
+      {requiresTap && status === 'playing' && (
+        <button type="button" onClick={() => { videoRef.current?.play().then(() => setRequiresTap(false)).catch(() => {}); }} className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 text-base font-bold text-white">▶ برای شروع پخش لمس کنید</button>
+      )}
       {status === 'error' && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 gap-4 p-6">
           <div className="text-5xl">📡</div>
