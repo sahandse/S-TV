@@ -22,6 +22,7 @@ export default function Header() {
     { to: '/countries', label: 'کشورها' },
     { to: '/genres', label: 'ژانرها' },
     { to: '/favorites', label: 'علاقه‌مندی‌ها' },
+    { to: '/settings', label: 'تنظیمات' },
   ];
 
   return (
