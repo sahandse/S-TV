@@ -59,7 +59,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#08080e]">
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section className="relative overflow-hidden pt-8 pb-10 sm:pt-12 sm:pb-16 px-4 sm:px-6">
+      <section className="relative overflow-hidden pt-10 pb-10 sm:pt-16 sm:pb-16 px-4 sm:px-6">
         {/* Background glow */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(109,40,217,0.15),transparent)]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
@@ -68,15 +68,15 @@ export default function Home() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 glass text-violet-300 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-            {channels.length > 0 ? `${channels.length.toLocaleString('fa-IR')} کانال زنده در دسترس` : 'در حال بارگذاری…'}
+            {channels.length > 0 ? `${channels.length.toLocaleString('fa-IR')} کانال در فهرست` : 'در حال بارگذاری…'}
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
-            دنیا را{' '}
+          <h1 className="text-4xl sm:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
+            تلویزیون را{' '}
             <span className="relative inline-block">
               <span className="text-transparent bg-clip-text bg-gradient-to-l from-violet-400 via-purple-400 to-fuchsia-400">
-                زنده ببین
+                هرجا زنده ببین
               </span>
               <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-l from-transparent via-violet-500 to-transparent" />
             </span>
@@ -114,7 +114,7 @@ export default function Home() {
             {[
               { label: 'کشور', value: countries.filter(c => countByCountry.has(c.code)).length },
               { label: 'ژانر', value: categories.filter(c => (countByCategory.get(c.id) ?? 0) > 0).length },
-              { label: 'کانال زنده', value: channels.length },
+              { label: 'کانال', value: channels.length },
             ].map(stat => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl font-black text-white">{stat.value.toLocaleString('fa-IR')}</div>
@@ -128,7 +128,7 @@ export default function Home() {
       {/* Divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
 
         {/* ═══ RECENTLY WATCHED ═══ */}
         {recentChannels.length > 0 && (
@@ -200,7 +200,7 @@ export default function Home() {
 
         {/* ═══ FEATURED ═══ */}
         <section>
-          <SectionTitle icon="📡" title="کانال‌های منتخب" to="/countries" />
+          <SectionTitle icon="📡" title="پیشنهادهای تماشا" to="/countries" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {featured.map(ch => {
               const stream = streamMap.get(ch.id)!;
