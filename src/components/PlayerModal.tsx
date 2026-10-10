@@ -45,7 +45,6 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
   }, []);
 
   const selectedStream = alternateSources.find(item => item.url === selectedUrl) ?? stream;
-  const guideAvailable = Boolean(guideUrl);
   const quality = selectedStream.quality ? QUALITY_LABELS[selectedStream.quality.toLowerCase()] ?? selectedStream.quality.toUpperCase() : null;
 
   return (
@@ -85,14 +84,7 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
           </button>
           {guideExpanded && (
             <div className="mt-3 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs leading-7 text-zinc-400">
-              {false && guideAvailable ? (
-                <>
-                  <p>برای این کانال یک منبع راهنمای برنامه ثبت شده است. زمان‌بندی زنده هنوز از این منبع در برنامه دریافت نمی‌شود.</p>
-                  <a href={guideUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex rounded-lg bg-violet-600/20 px-3 py-2 font-semibold text-violet-200 hover:bg-violet-600/30">باز کردن راهنمای اصلی ↗</a>
-                </>
-              ) : (
-                <EPGGuide channelId={channel.id} fallbackUrl={guideUrl} />
-              )}
+              <EPGGuide channelId={channel.id} fallbackUrl={guideUrl} />
             </div>
           )}
         </section>
