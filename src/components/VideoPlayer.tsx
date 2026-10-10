@@ -38,19 +38,23 @@ export default function VideoPlayer({ url, title }: Props) {
       hlsRef.current = hls;
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        setStatus('playing');
         startPlayback();
       });
 
       hls.on(Hls.Events.ERROR, (_, data) => {
-        if (data.fatal) onError('خطا در بارگذاری پخش. این کانال ممکن است آفلاین یا محدود باشد.');
+        if (!data.fatal) return;
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+          hls.recoverMediaError();
+        } else {
+          onError('اتصال به این کانال برقرار نشد. دوباره تلاش کن یا کانال دیگه‌ای انتخاب کن.');
+        }
       });
 
       hls.attachMedia(video);
       hls.loadSource(url);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
-      const onLoaded = () => { setStatus('playing'); startPlayback(); };
+      const onLoaded = () => { startPlayback(); };
       const onErr = () => onError('خطا در بارگذاری پخش.');
       video.addEventListener('loadedmetadata', onLoaded, { once: true });
       video.addEventListener('error', onErr, { once: true });
@@ -89,7 +93,7 @@ export default function VideoPlayer({ url, title }: Props) {
         </div>
       )}
 
-      <video ref={videoRef} controls className="w-full h-full" playsInline aria-label={title} onPlaying={() => setStatus('playing')} />
+      <video ref={videoRef} controls className="w-full h-full" playsInline aria-label={title} onPlaying={() => { setRequiresTap(false); setStatus('playing'); }} onWaiting={() => setStatus('loading')} onError={() => { if (videoRef.current?.src) { setErrorMsg('پخش متوقف شد. دوباره تلاش کن.'); setStatus('error'); } }} />
     </div>
   );
 }
