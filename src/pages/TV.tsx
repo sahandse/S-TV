@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useIPTV } from '../context/IPTVContext';
 import { useUser } from '../context/UserContext';
 import VideoPlayer from '../components/VideoPlayer';
@@ -8,6 +8,7 @@ import ChannelLogo from '../components/ChannelLogo';
 import type { Channel } from '../types';
 
 export default function TV() {
+  const navigate = useNavigate();
   const { channels, streamMap, streamsByChannel, logoMap, guideMap } = useIPTV();
   const { favorites, addRecent, toggleFav } = useUser();
   const [filter, setFilter] = useState('');
@@ -45,12 +46,12 @@ export default function TV() {
         next?.scrollIntoView({block: 'nearest'});
       } else if (event.key === 'Escape' || event.key === 'Backspace') {
         if (event.key === 'Backspace') event.preventDefault();
-        (document.querySelector('.tv-shell a[href="#/"]') as HTMLElement | null)?.click();
+        navigate('/');
       }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, []);
+  }, [navigate]);
   useEffect(() => {
     let frame = 0;
     let lastDirection = 0;
