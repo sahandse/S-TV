@@ -45,9 +45,13 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
   const hasGuide = guideMap.has(channel.id);
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`پخش ${channel.name}`}
       onClick={onClick}
-      className="group relative w-full text-right rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 hover:border-violet-500/40 transition-all duration-250 hover:scale-[1.03] hover:shadow-xl hover:shadow-violet-900/20 card-press"
+      onKeyDown={e => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick(); } }}
+      className="group relative cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400 w-full text-right rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 hover:border-violet-500/40 transition-all duration-250 hover:scale-[1.03] hover:shadow-xl hover:shadow-violet-900/20 card-press"
     >
       {/* Top visual section */}
       <div className={`relative h-28 bg-gradient-to-br ${grad} flex items-center justify-center`}>
@@ -81,10 +85,10 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
         {/* Favorite button */}
         <button
           onClick={e => { e.stopPropagation(); toggleFav(channel.id); }}
-          className={`absolute bottom-2 left-2 w-7 h-7 rounded-full flex items-center justify-center transition-all z-20 ${
+          className={`absolute bottom-2 left-2 w-9 h-9 rounded-full flex items-center justify-center transition-all z-20 ${
             fav
               ? 'bg-red-500/80 text-white'
-              : 'bg-black/40 text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-red-400'
+              : 'bg-black/40 text-zinc-400 opacity-100 hover:text-red-400'
           }`}
           aria-label={fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
         >
@@ -117,7 +121,7 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
           )}
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
