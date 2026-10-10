@@ -44,10 +44,10 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto p-2 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative w-full max-w-2xl bg-[#111118] border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/60 animate-slide-up">
+      <div className="relative w-full max-w-2xl max-h-[95dvh] overflow-y-auto bg-[#111118] border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/60 animate-slide-up">
 
         {/* Close */}
         <button
