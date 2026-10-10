@@ -64,7 +64,7 @@ export default function Browse({ mode }: {
 
   const filtered = useMemo(() => {
     if (isListMode) return [];
-    let list = channels;
+    let list = channels.filter(ch => streamMap.has(ch.id));
 
     if (mode === 'country' && code) list = list.filter(ch => ch.country === code.toUpperCase());
     else if (mode === 'category' && id) list = list.filter(ch => ch.categories.includes(id));
@@ -77,7 +77,7 @@ export default function Browse({ mode }: {
     if (qualityFilter !== 'all') {
       list = list.filter(ch => {
         const s = streamMap.get(ch.id);
-        if (!s?.quality) return qualityFilter === 'sd';
+        if (!s?.quality) return false;
         const q = s.quality.toLowerCase();
         const isHD = q.includes('hd') || q.includes('1080') || q.includes('720') || q.includes('4k');
         return qualityFilter === 'hd' ? isHD : !isHD;
