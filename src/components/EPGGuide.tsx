@@ -26,6 +26,7 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
   }, []);
 
   useEffect(() => {
+    setItems([]);
     const source = localStorage.getItem('stv:xmltv-url')?.trim() || fallbackUrl;
     if (!source) { setStatus('برنامه‌های این کانال هنوز در دسترس نیست.'); setItems([]); return; }
     const cacheKey = source + '::' + channelId;
@@ -63,13 +64,14 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
 
   const current = items.find(item => item.start <= now && item.stop > now);
   const next = items.find(item => item.start > now);
+  const progress = current ? Math.max(0, Math.min(100, ((now - current.start) / (current.stop - current.start)) * 100)) : 0;
   const format = (time: number) => new Intl.DateTimeFormat('fa-IR', { hour: '2-digit', minute: '2-digit' }).format(time);
 
   return (
     <div className="space-y-2 text-xs text-zinc-300">
       {status && <p className="leading-6 text-zinc-400">{status}</p>}
-      {current && <div className="rounded-lg bg-emerald-500/10 p-3"><span className="font-bold text-emerald-300">اکنون</span><p className="mt-1">{current.title} · {format(current.start)} تا {format(current.stop)}</p></div>}
-      {next && <div className="rounded-lg bg-white/5 p-3"><span className="font-bold text-violet-300">برنامه بعدی</span><p className="mt-1">{next.title} · {format(next.start)}</p></div>}
+      {current && <div className="rounded-2xl border border-violet-500/15 bg-violet-500/10 p-4"><span className="font-bold text-violet-200">اکنون در حال پخش</span><p className="mt-2 text-sm font-semibold text-white">{current.title}</p><p className="mt-1 text-zinc-400">{format(current.start)} تا {format(current.stop)}</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10" dir="ltr"><div className="h-full rounded-full bg-violet-400" style={{width: `${progress}%`}} /></div></div>}
+      {next && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><span className="font-bold text-zinc-300">بعد از این</span><p className="mt-2 text-sm text-white">{next.title}</p><p className="mt-1 text-zinc-400">شروع: {format(next.start)}</p></div>}
     </div>
   );
 }
