@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { Channel, Stream } from '../types';
 import VideoPlayer from './VideoPlayer';
 import ChannelLogo from './ChannelLogo';
@@ -21,7 +21,9 @@ const QUALITY_LABELS: Record<string, string> = {
 
 export default function PlayerModal({ channel, stream, logoUrl, countryName, countryFlag, onClose }: Props) {
   const { addRecent, isFav, toggleFav } = useUser();
-  const { guideMap } = useIPTV();
+  const { guideMap, streamsByChannel } = useIPTV();
+  const alternateSources = streamsByChannel.get(channel.id) ?? [stream];
+  const [selectedUrl, setSelectedUrl] = useState(stream.url);
   const guideUrl = guideMap.get(channel.id);
   const fav = isFav(channel.id);
 
@@ -40,7 +42,8 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
     return () => { document.body.style.overflow = ''; };
   }, []);
 
-  const quality = stream.quality ? QUALITY_LABELS[stream.quality.toLowerCase()] ?? stream.quality.toUpperCase() : null;
+  const selectedStream = alternateSources.find(item => item.url === selectedUrl) ?? stream;
+  const quality = selectedStream.quality ? QUALITY_LABELS[selectedStream.quality.toLowerCase()] ?? selectedStream.quality.toUpperCase() : null;
 
   return (
     <div
@@ -61,7 +64,15 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
         </button>
 
         {/* Player */}
-        <VideoPlayer url={stream.url} title={channel.name} />
+        <VideoPlayer url={selectedStream.url} title={channel.name} />
+        {alternateSources.length > 1 && (
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+            <label htmlFor="stream-source" className="text-xs font-medium text-zinc-300">منبع پخش</label>
+            <select id="stream-source" value={selectedUrl} onChange={e => setSelectedUrl(e.target.value)} className="min-w-0 max-w-[70%] rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-xs text-white focus:border-violet-400">
+              {alternateSources.map((source, index) => <option key={source.url} value={source.url}>{`منبع ${(index + 1).toLocaleString('fa-IR')} ${source.quality ? ' • ' + source.quality.toUpperCase() : ''}`}</option>)}
+            </select>
+          </div>
+        )}
 
         {/* Info bar */}
         <div className="p-4 flex items-start gap-3">
