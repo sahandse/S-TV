@@ -38,6 +38,7 @@ export default function Browse({ mode }: {
   const { channels, streamMap, logoMap, countries, categories, languages, countByCountry, countByCategory, channelLanguages } = useIPTV();
 
   const [search, setSearch] = useState('');
+  const [limit, setLimit] = useState(30);
   const [qualityFilter, setQualityFilter] = useState<'all' | 'hd' | 'sd'>('all');
   const [langFilter, setLangFilter] = useState<string>('all');
   const [playing, setPlaying] = useState<Playing | null>(null);
@@ -191,7 +192,7 @@ export default function Browse({ mode }: {
                     type="text"
                     placeholder="جستجو در کانال‌ها…"
                     value={search}
-                    onChange={e => setSearch(e.target.value)}
+                    onChange={e => { setSearch(e.target.value); setLimit(30); }}
                     className="w-full bg-zinc-900 border border-white/8 rounded-xl pr-9 pl-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/60 transition-colors"
                   />
                 </div>
@@ -199,7 +200,7 @@ export default function Browse({ mode }: {
                   {([['all', 'همه'], ['hd', 'HD'], ['sd', 'SD']] as const).map(([val, label]) => (
                     <button
                       key={val}
-                      onClick={() => setQualityFilter(val)}
+                      onClick={() => { setQualityFilter(val); setLimit(30); }}
                       className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                         qualityFilter === val
                           ? 'bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-900/30'
@@ -215,7 +216,7 @@ export default function Browse({ mode }: {
               {languages.length > 0 && (
                 <select
                   value={langFilter}
-                  onChange={e => setLangFilter(e.target.value)}
+                  onChange={e => { setLangFilter(e.target.value); setLimit(30); }}
                   className="self-start bg-zinc-900 border border-white/8 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-violet-500/60 transition-colors cursor-pointer"
                 >
                   <option value="all">همه زبان‌ها</option>
@@ -233,7 +234,7 @@ export default function Browse({ mode }: {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {filtered.map(ch => {
+                {filtered.slice(0, limit).map(ch => {
                   const stream = streamMap.get(ch.id)!;
                   const country = countryMap.get(ch.country);
                   return (
@@ -247,6 +248,11 @@ export default function Browse({ mode }: {
                     />
                   );
                 })}
+              </div>
+            )}
+            {filtered.length > limit && (
+              <div className="flex justify-center mt-6">
+                <button onClick={() => setLimit(v => v + 30)} className="rounded-xl border border-violet-500/30 bg-violet-500/10 px-6 py-3 text-sm font-bold text-violet-200 hover:bg-violet-500/20">نمایش ۳۰ کانال دیگر</button>
               </div>
             )}
           </>
