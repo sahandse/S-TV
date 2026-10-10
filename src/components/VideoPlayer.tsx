@@ -85,14 +85,7 @@ export default function VideoPlayer({ url, title }: Props) {
           <div className="text-5xl">📡</div>
           <p className="text-zinc-300 text-sm text-center max-w-xs leading-relaxed">{errorMsg}</p>
           <button onClick={() => setRetryKey(v => v + 1)} className="rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white hover:bg-violet-500">تلاش دوباره برای پخش</button>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-violet-400 hover:text-violet-300 text-xs underline underline-offset-2"
-          >
-            باز کردن مستقیم پخش ↗
-          </a>
+
         </div>
       )}
 
