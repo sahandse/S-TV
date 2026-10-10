@@ -24,8 +24,8 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
   }, []);
 
   useEffect(() => {
-    const source = localStorage.getItem('stv:xmltv-url')?.trim();
-    if (!source) { setStatus('برای نمایش جدول زنده، نشانی XMLTV را در تنظیمات ثبت کنید.'); setItems([]); return; }
+    const source = localStorage.getItem('stv:xmltv-url')?.trim() || fallbackUrl;
+    if (!source) { setStatus('برای این کانال منبع زمان‌بندی قابل دریافت موجود نیست.'); setItems([]); return; }
     let cancelled = false;
     const controller = new AbortController();
     setStatus('در حال دریافت زمان‌بندی واقعی…');
@@ -49,7 +49,7 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
       })
       .catch(() => { if (!cancelled) { setItems([]); setStatus('دریافت XMLTV ناموفق بود؛ آدرس، دسترسی CORS یا فرمت فایل را بررسی کنید.'); } });
     return () => { cancelled = true; controller.abort(); };
-  }, [channelId]);
+  }, [channelId, fallbackUrl]);
 
   const current = items.find(item => item.start <= now && item.stop > now);
   const next = items.find(item => item.start > now);
