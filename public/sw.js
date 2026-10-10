@@ -1,11 +1,12 @@
-const CACHE = 's-tv-shell-v2';
-const APP_ROOT = '/S-TV/';
-const PRECACHE = [APP_ROOT, APP_ROOT + 'index.html'];
+// Keep S-TV's installed shell current after each GitHub Pages deployment.
+// Video streams and external IPTV data are deliberately never cached here.
+const CACHE = 's-tv-shell-v3';
+const ROOT = '/S-TV/';
+const PRECACHE = [ROOT + 'index.html'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
 });
-
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
@@ -13,30 +14,24 @@ self.addEventListener('activate', event => {
       .then(() => self.clients.claim())
   );
 });
-
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin !== self.location.origin || !url.pathname.startsWith(APP_ROOT)) return;
+  if (url.origin !== self.location.origin || !url.pathname.startsWith(ROOT)) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(async () => (await caches.match(APP_ROOT)) || (await caches.match(APP_ROOT + 'index.html')) || Response.error())
+      fetch(new Request(request, { cache: 'no-store' })).then(response => {
+        if (response.ok) {
+          const copy = response.clone();
+          event.waitUntil(caches.open(CACHE).then(cache => cache.put(ROOT + 'index.html', copy)));
+        }
+        return response;
+      }).catch(() => caches.match(ROOT + 'index.html').then(cached => cached || Response.error()))
     );
     return;
   }
-
-  if (!['script', 'style', 'font', 'image', 'manifest'].includes(request.destination)) return;
-  event.respondWith(
-    caches.match(request).then(async cached => {
-      if (cached) return cached;
-      const response = await fetch(request);
-      if (response.ok) {
-        const cache = await caches.open(CACHE);
-        await cache.put(request, response.clone());
-      }
-      return response;
-    })
-  );
+  // Browser-managed HTTP caching + Vite fingerprinted assets; do not persist
+  // JS/CSS across deployments in a service worker cache.
 });
