@@ -11,6 +11,7 @@ import type { Channel, Stream, Country, Category, Language } from '../types';
 export interface IPTVState {
   channels: Channel[];
   streamMap: Map<string, Stream>;
+  streamsByChannel: Map<string, Stream[]>;
   logoMap: Map<string, string>;
   countries: Country[];
   categories: Category[];
@@ -29,6 +30,7 @@ export function IPTVProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<IPTVState>({
     channels: [],
     streamMap: new Map(),
+    streamsByChannel: new Map(),
     logoMap: new Map(),
     countries: [],
     categories: [],
@@ -45,7 +47,12 @@ export function IPTVProvider({ children }: { children: ReactNode }) {
     Promise.all([getChannels(), getStreams(), getCountries(), getCategories(), getLanguages()])
       .then(([channels, streams, countries, categories, languages]) => {
         const streamMap = new Map<string, Stream>();
+        const streamsByChannel = new Map<string, Stream[]>();
         for (const s of streams) {
+          if (s.channel && s.url && /^https?:\/\//i.test(s.url)) {
+            const available = streamsByChannel.get(s.channel) ?? [];
+            if (!available.some(item => item.url === s.url)) streamsByChannel.set(s.channel, [...available, s]);
+          }
           if (s.channel && s.url && !streamMap.has(s.channel)) {
             streamMap.set(s.channel, s);
           }
@@ -82,6 +89,7 @@ export function IPTVProvider({ children }: { children: ReactNode }) {
           ...prev,
           channels: liveChannels,
           streamMap,
+          streamsByChannel,
           countries,
           categories,
           languages,
