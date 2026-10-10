@@ -53,7 +53,7 @@ export function IPTVProvider({ children }: { children: ReactNode }) {
             const available = streamsByChannel.get(s.channel) ?? [];
             if (!available.some(item => item.url === s.url)) streamsByChannel.set(s.channel, [...available, s]);
           }
-          if (s.channel && s.url && !streamMap.has(s.channel)) {
+          if (s.channel && s.url && /^https?:\/\//i.test(s.url) && !streamMap.has(s.channel)) {
             streamMap.set(s.channel, s);
           }
         }
