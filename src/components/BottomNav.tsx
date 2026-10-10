@@ -21,15 +21,16 @@ const ITEMS = [
     ),
   },
   {
-    to: '/countries',
-    label: 'کشورها',
+    to: '/tv',
+    label: 'تلویزیون',
     icon: (active: boolean) => (
-      <svg viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} className="w-6 h-6">
-        <circle cx="12" cy="12" r="10" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 2} className="w-6 h-6">
+        <rect x="2" y="4" width="20" height="15" rx="3" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 22h8M12 19v3M10 9l5 3-5 3z" />
       </svg>
     ),
   },
+  {
   {
     to: '/genres',
     label: 'ژانرها',
