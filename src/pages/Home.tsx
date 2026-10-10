@@ -52,13 +52,14 @@ export default function Home() {
     .sort((a, b) => (countByCategory.get(b.id) ?? 0) - (countByCategory.get(a.id) ?? 0))
     .slice(0, 14);
 
+  const persianChannels = channels.filter(ch => ch.country === 'IR' || ch.country === 'AF' || ch.country === 'TJ').slice(0, 18);
   const featured = channels.slice(0, 24);
 
   return (
     <div className="min-h-screen bg-[#08080e]">
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section className="relative overflow-hidden pt-12 pb-16 px-4 sm:px-6">
+      <section className="relative overflow-hidden pt-8 pb-10 sm:pt-12 sm:pb-16 px-4 sm:px-6">
         {/* Background glow */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(109,40,217,0.15),transparent)]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
@@ -71,7 +72,7 @@ export default function Home() {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl sm:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
             دنیا را{' '}
             <span className="relative inline-block">
               <span className="text-transparent bg-clip-text bg-gradient-to-l from-violet-400 via-purple-400 to-fuchsia-400">
@@ -111,7 +112,7 @@ export default function Home() {
               { label: 'کانال زنده', value: channels.length },
             ].map(stat => (
               <div key={stat.label} className="text-center">
-                <div className="text-2xl font-black text-white">{stat.value.toLocaleString('fa-IR')}+</div>
+                <div className="text-2xl font-black text-white">{stat.value.toLocaleString('fa-IR')}</div>
                 <div className="text-xs text-zinc-500 mt-0.5">{stat.label}</div>
               </div>
             ))}
@@ -122,7 +123,7 @@ export default function Home() {
       {/* Divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-10">
 
         {/* ═══ RECENTLY WATCHED ═══ */}
         {recentChannels.length > 0 && (
@@ -179,9 +180,22 @@ export default function Home() {
           </div>
         </section>
 
+        {persianChannels.length > 0 && (
+          <section>
+            <SectionTitle icon="📺" title="کانال‌های فارسی‌زبان منطقه" to="/country/IR" />
+            <div className="scroll-row">
+              {persianChannels.map(ch => {
+                const stream = streamMap.get(ch.id)!;
+                const country = countryMap.get(ch.country);
+                return <div key={ch.id} className="w-36 shrink-0"><ChannelCard channel={ch} stream={stream} logoUrl={logoMap.get(ch.id)} countryFlag={country?.flag || getFlagEmoji(ch.country)} onClick={() => setPlaying({ channel: ch, stream })} /></div>;
+              })}
+            </div>
+          </section>
+        )}
+
         {/* ═══ FEATURED ═══ */}
         <section>
-          <SectionTitle icon="📡" title="کانال‌های ویژه" to="/countries" />
+          <SectionTitle icon="📡" title="کانال‌های منتخب" to="/countries" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {featured.map(ch => {
               const stream = streamMap.get(ch.id)!;
