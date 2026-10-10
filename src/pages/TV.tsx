@@ -103,10 +103,15 @@ export default function TV() {
       <div className="mx-auto max-w-[1800px] px-4 py-5 sm:px-10 sm:py-9">
         <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div><h1 className="text-2xl font-black tracking-tight sm:text-4xl">📺 تلویزیون زنده</h1><p className="mt-1 text-xs text-zinc-400">جهت‌ها: حرکت · Enter / X: انتخاب · PageUp / PageDown: تعویض کانال</p>{controllerReady && <p className="mt-1 text-xs text-emerald-400">دسته توسط مرورگر شناسایی شد</p>}</div>
-          <Link to="/" className="tv-focus rounded-xl border border-white/15 px-5 py-3 text-sm font-bold text-zinc-200">بازگشت به خانه</Link>
+          <Link to="/" className="tv-focus rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold text-zinc-200 hover:bg-white/10">← خانه</Link>
         </header>
-        <div className="grid gap-5 lg:grid-cols-[minmax(310px,360px)_minmax(0,1fr)]">
-          <aside className="order-2 min-w-0 rounded-3xl border border-white/10 bg-[#131722] p-4 lg:order-1">
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-2" aria-label="دسته‌های سریع">
+          {([["all","همه"],["sports","ورزشی"],["news","خبری"],["movies","فیلم"],["music","موسیقی"],["documentary","مستند"],["kids","کودکان"]] as const).filter(([id]) => id === "all" || categoryCounts.some(([cat]) => cat === id)).map(([id,label]) => (
+            <button key={id} type="button" aria-pressed={category===id} onClick={() => {setCategory(id);setCount(60);}} className={`tv-focus shrink-0 rounded-2xl border px-5 py-3 text-sm font-bold transition-colors ${category === id ? "border-violet-400 bg-violet-600 text-white shadow-lg shadow-violet-900/20" : "border-white/10 bg-[#161b29] text-zinc-300 hover:bg-[#252b3b]"}`}>{label}</button>
+          ))}
+        </div>
+        <div className="grid gap-5 xl:grid-cols-[minmax(320px,370px)_minmax(0,1fr)]">
+          <aside className="order-2 min-w-0 rounded-[1.75rem] border border-white/10 bg-[#121726] p-4 shadow-2xl shadow-black/20 xl:order-1">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="font-bold">کانال‌ها <span className="text-xs text-zinc-400">({visible.length.toLocaleString('fa-IR')})</span></h2>
               <button type="button" onClick={() => { setOnlyFav(v => !v); setCount(60); }} aria-pressed={onlyFav} className={`tv-focus rounded-lg px-3 py-2 text-xs ${onlyFav ? 'bg-violet-600' : 'bg-white/10'}`}>♥ علاقه‌مندی‌ها</button>
@@ -117,10 +122,10 @@ export default function TV() {
               {categoryCounts.map(([id, total]) => <button key={id} type="button" aria-pressed={category === id} className={`tv-focus shrink-0 rounded-xl px-4 py-3 text-sm font-bold ${category === id ? 'bg-violet-600 text-white' : 'bg-white/5 text-zinc-300'}`} onClick={() => {setCategory(id);setCount(60);}}>{FA_CATEGORIES[id] ?? id} <span className="text-xs opacity-70">{total.toLocaleString('fa-IR')}</span></button>)}
             </div>}
             <input type="search" value={filter} onChange={e => { setFilter(e.target.value); setCount(60); }} placeholder="جستجوی کانال واقعی…" aria-label="جستجوی کانال" className="tv-focus mb-3 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm" />
-            <div className="tv-list max-h-[52vh] space-y-1 overflow-y-auto lg:max-h-[65vh]">
+            <div className="tv-list max-h-[42vh] space-y-1.5 overflow-y-auto xl:max-h-[67vh]">
               {visible.slice(0, count).map(ch => <div key={ch.id} className="flex items-center gap-1">
-                <button type="button" onClick={() => choose(ch)} className={`tv-focus flex min-w-0 flex-1 items-center gap-3 rounded-xl p-3 text-right transition-colors ${ch.id === selectedId ? 'bg-violet-600/35 ring-1 ring-violet-400' : 'hover:bg-white/10'}`}>
-                  <ChannelLogo name={ch.name} url={logoMap.get(ch.id)} className="h-10 w-10 shrink-0" />
+                <button type="button" onClick={() => choose(ch)} className={`tv-focus flex min-w-0 flex-1 items-center gap-3 rounded-2xl p-3.5 text-right transition-all ${ch.id === selectedId ? 'bg-violet-600/25 ring-2 ring-violet-400/80 shadow-lg' : 'bg-white/[0.025] hover:bg-white/10'}`}>
+                  <ChannelLogo name={ch.name} url={logoMap.get(ch.id)} className="h-12 w-12 shrink-0" />
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold">{ch.name}</span>
                 </button>
                 <button type="button" onClick={() => toggleFav(ch.id)} aria-label={favorites.has(ch.id) ? 'حذف از علاقه‌مندی' : 'افزودن به علاقه‌مندی'} className="tv-focus rounded-lg p-3 text-lg" >{favorites.has(ch.id) ? '♥' : '♡'}</button>
@@ -129,9 +134,9 @@ export default function TV() {
               {visible.length === 0 && <p className="p-5 text-center text-sm text-zinc-400">کانالی با این مشخصات پیدا نشد. دسته یا جستجو را تغییر بده.</p>}
             </div>
           </aside>
-          <main className="order-1 min-w-0 space-y-4 lg:order-2">
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
-              {selected && activeSource ? <VideoPlayer key={selected.id} url={activeSource.url} title={selected.name} /> : <div className="flex aspect-video flex-col items-center justify-center gap-3 text-center text-zinc-300"><span className="text-5xl">📡</span><p className="px-5">یک کانال از فهرست انتخاب کنید</p></div>}
+          <main className="order-1 min-w-0 space-y-4 xl:order-2">
+            <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-2xl shadow-black/50">
+              {selected && activeSource ? <VideoPlayer key={selected.id} url={activeSource.url} title={selected.name} /> : <div className="flex aspect-video flex-col items-center justify-center gap-4 bg-[radial-gradient(ellipse_at_center,rgba(104,65,195,.20),transparent_70%)] text-center text-zinc-300"><span className="text-5xl">📡</span><p className="px-5">از لیست کناری یک کانال انتخاب کن و تماشا رو شروع کن</p></div>}
             </div>
             {selected && <div className="rounded-3xl border border-white/10 bg-[#131722] p-5 sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-3">
