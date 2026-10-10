@@ -182,7 +182,7 @@ export default function Home() {
 
         {persianChannels.length > 0 && (
           <section>
-            <SectionTitle icon="📺" title="کانال‌های فارسی‌زبان منطقه" to="/country/IR" />
+            <SectionTitle icon="📺" title="کانال‌های ایران و منطقه" to="/country/IR" />
             <div className="scroll-row">
               {persianChannels.map(ch => {
                 const stream = streamMap.get(ch.id)!;
