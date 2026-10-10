@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const PALETTE = [
   'from-violet-700 to-purple-900',
@@ -18,6 +18,7 @@ interface Props {
 
 export default function ChannelLogo({ url, name, className = 'w-12 h-12' }: Props) {
   const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [url]);
 
   const gradient = PALETTE[name.charCodeAt(0) % PALETTE.length];
   const initial = name.trim().charAt(0).toUpperCase() || '?';
