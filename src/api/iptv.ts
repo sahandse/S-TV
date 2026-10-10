@@ -1,13 +1,18 @@
 import type { Channel, Stream, Logo, Country, Category, Language, Guide, Feed } from '../types';
 
 const BASE = 'https://iptv-org.github.io/api';
+const CACHE_TTL = 1000 * 60 * 60;
 
 async function get<T>(path: string): Promise<T> {
   const key = `s-tv:${path}`;
 
   try {
     const cached = sessionStorage.getItem(key);
-    if (cached) return JSON.parse(cached) as T;
+    if (cached) {
+      const entry = JSON.parse(cached) as { savedAt: number; data: T };
+      if (entry && typeof entry.savedAt === "number" && Date.now() - entry.savedAt < CACHE_TTL) return entry.data;
+      sessionStorage.removeItem(key);
+    }
   } catch {}
 
   const res = await fetch(`${BASE}/${path}`);
@@ -15,7 +20,7 @@ async function get<T>(path: string): Promise<T> {
   const data = (await res.json()) as T;
 
   try {
-    sessionStorage.setItem(key, JSON.stringify(data));
+    sessionStorage.setItem(key, JSON.stringify({ savedAt: Date.now(), data }));
   } catch {}
 
   return data;
