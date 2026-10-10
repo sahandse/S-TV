@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Browse from './pages/Browse';
 import Search from './pages/Search';
 import Favorites from './pages/Favorites';
+import Settings from './pages/Settings';
 import Loading from './pages/Loading';
 import ErrorPage from './pages/ErrorPage';
 
@@ -24,6 +25,7 @@ function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/countries" element={<Browse mode="all-countries" />} />
           <Route path="/genres" element={<Browse mode="all-genres" />} />
           <Route path="/country/:code" element={<Browse mode="country" />} />
