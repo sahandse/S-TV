@@ -1,7 +1,6 @@
 import type { Channel, Stream } from '../types';
 import ChannelLogo from './ChannelLogo';
 import { useUser } from '../context/UserContext';
-import { useIPTV } from '../context/IPTVContext';
 
 interface Props {
   channel: Channel;
@@ -40,9 +39,7 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
   const grad = BG_GRADIENTS[gradIdx];
   const qInfo = qualityInfo(stream.quality);
   const { isFav, toggleFav } = useUser();
-  const { guideMap } = useIPTV();
   const fav = isFav(channel.id);
-  const hasGuide = guideMap.has(channel.id);
 
   return (
     <div
@@ -61,13 +58,8 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
         <div className="absolute top-2 right-2 flex flex-col items-end gap-1 pointer-events-none">
           <span className="flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
             <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
-            پخش
+            کانال
           </span>
-          {hasGuide && (
-            <span className="flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-              راهنما
-            </span>
-          )}
         </div>
 
         {qInfo && (
