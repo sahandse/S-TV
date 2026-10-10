@@ -25,7 +25,7 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
 
   useEffect(() => {
     const source = localStorage.getItem('stv:xmltv-url')?.trim() || fallbackUrl;
-    if (!source) { setStatus('برای این کانال منبع زمان‌بندی قابل دریافت موجود نیست.'); setItems([]); return; }
+    if (!source) { setStatus('برنامه‌های این کانال هنوز در دسترس نیست.'); setItems([]); return; }
     let cancelled = false;
     const controller = new AbortController();
     setStatus('در حال دریافت زمان‌بندی واقعی…');
@@ -45,9 +45,9 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
           .sort((a, b) => a.start - b.start);
         if (cancelled) return;
         setItems(programmes);
-        setStatus(programmes.length ? '' : 'برای این شناسه کانال، برنامه‌ای در فایل XMLTV یافت نشد.');
+        setStatus(programmes.length ? '' : 'جدول پخش این کانال هنوز منتشر نشده است.');
       })
-      .catch(() => { if (!cancelled) { setItems([]); setStatus('دریافت XMLTV ناموفق بود؛ آدرس، دسترسی CORS یا فرمت فایل را بررسی کنید.'); } });
+      .catch(() => { if (!cancelled) { setItems([]); setStatus('اطلاعات برنامه‌های این کانال فعلاً در دسترس نیست.'); } });
     return () => { cancelled = true; controller.abort(); };
   }, [channelId, fallbackUrl]);
 
@@ -60,7 +60,6 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
       {status && <p className="leading-6 text-zinc-400">{status}</p>}
       {current && <div className="rounded-lg bg-emerald-500/10 p-3"><span className="font-bold text-emerald-300">اکنون</span><p className="mt-1">{current.title} · {format(current.start)} تا {format(current.stop)}</p></div>}
       {next && <div className="rounded-lg bg-white/5 p-3"><span className="font-bold text-violet-300">برنامه بعدی</span><p className="mt-1">{next.title} · {format(next.start)}</p></div>}
-      {fallbackUrl && <a href={fallbackUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-violet-300 underline">وب‌سایت راهنمای کانال ↗</a>}
     </div>
   );
 }
