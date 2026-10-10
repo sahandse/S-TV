@@ -65,14 +65,14 @@ export default function BottomNav() {
         {/* Blur backdrop */}
         <div className="absolute inset-0 bg-[#0d0d18]/90 backdrop-blur-xl border-t border-white/8" />
 
-        <div className="relative flex items-center justify-around px-2 py-2 safe-bottom">
+        <div className="relative flex items-center justify-between gap-1 px-1 py-2 safe-bottom">
           {ITEMS.map(({ to, label, icon }) => {
             const active = pathname === to;
             return (
               <Link
                 key={to}
                 to={to}
-                className={`flex flex-col items-center gap-1 px-6 py-2 rounded-2xl transition-all duration-200 ${
+                className={`flex flex-col items-center gap-1 flex-1 min-w-0 px-1 py-2 rounded-2xl transition-all duration-200 ${
                   active
                     ? 'text-violet-400'
                     : 'text-zinc-500 hover:text-zinc-300'
@@ -85,7 +85,7 @@ export default function BottomNav() {
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-violet-400 rounded-full" />
                   )}
                 </div>
-                <span className={`text-[10px] font-semibold leading-none ${active ? 'text-violet-400' : 'text-zinc-500'}`}>
+                <span className={`text-[10px] text-center font-semibold leading-tight ${active ? 'text-violet-400' : 'text-zinc-500'}`}>
                   {label}
                 </span>
               </Link>
