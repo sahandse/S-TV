@@ -88,6 +88,11 @@ export default function Home() {
             مستقیم در مرورگر، کاملاً رایگان
           </p>
 
+          <div className="mx-auto mb-6 max-w-xl rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4 text-right">
+            <p className="mb-3 text-sm font-bold text-white">📺 تماشا روی تلویزیون و نمایشگر بزرگ</p>
+            <p className="mb-3 text-xs leading-6 text-zinc-300">فهرست کانال‌ها، کنترل با کیبورد یا دسته‌ای که ورودی صفحه‌کلید بدهد، و پخش در یک صفحه خلوت.</p>
+            <Link to="/tv" className="tv-focus inline-flex rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white hover:bg-violet-500">ورود به حالت تلویزیون ←</Link>
+          </div>
           {/* CTAs */}
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link
