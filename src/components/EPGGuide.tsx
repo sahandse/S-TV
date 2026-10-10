@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
 type Programme = { title: string; start: number; stop: number };
+const programmeCache = new Map<string, { time: number; items: Programme[] }>();
+const CACHE_MS = 10 * 60 * 1000;
 
 function parseTime(value: string | null): number {
   if (!value) return NaN;
@@ -26,6 +28,13 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
   useEffect(() => {
     const source = localStorage.getItem('stv:xmltv-url')?.trim() || fallbackUrl;
     if (!source) { setStatus('برنامه‌های این کانال هنوز در دسترس نیست.'); setItems([]); return; }
+    const cacheKey = source + '::' + channelId;
+    const cached = programmeCache.get(cacheKey);
+    if (cached && Date.now() - cached.time < CACHE_MS) {
+      setItems(cached.items);
+      setStatus(cached.items.length ? '' : 'جدول پخش این کانال هنوز منتشر نشده است.');
+      return;
+    }
     let cancelled = false;
     const controller = new AbortController();
     setStatus('در حال دریافت زمان‌بندی واقعی…');
@@ -44,6 +53,7 @@ export default function EPGGuide({ channelId, fallbackUrl }: { channelId: string
           .filter(item => item.title && Number.isFinite(item.start) && Number.isFinite(item.stop))
           .sort((a, b) => a.start - b.start);
         if (cancelled) return;
+        programmeCache.set(cacheKey, { time: Date.now(), items: programmes });
         setItems(programmes);
         setStatus(programmes.length ? '' : 'جدول پخش این کانال هنوز منتشر نشده است.');
       })
