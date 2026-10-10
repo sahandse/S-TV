@@ -115,7 +115,7 @@ export function IPTVProvider({ children }: { children: ReactNode }) {
         getGuides().then(guides => {
           const guideMap = new Map<string, string>();
           for (const g of guides) {
-            const officialGuide = g.sources?.find(source => /^https:\/\//i.test(source.url))?.url ?? g.site_url;
+            const officialGuide = g.sources?.find(source => /^https:\/\//i.test(source.url) && /xml/i.test(source.format))?.url;
             if (g.channel && officialGuide && !guideMap.has(g.channel)) {
               guideMap.set(g.channel, officialGuide);
             }
