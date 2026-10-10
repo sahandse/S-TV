@@ -30,8 +30,9 @@ export default function Search() {
   }, [q, channels]);
 
   return (
-    <div className="min-h-screen bg-[#08080e] pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="min-h-screen bg-[#07090f] pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        <div className="mb-6"><h1 className="text-2xl sm:text-3xl font-black text-white">چی دوست داری تماشا کنی؟</h1><p className="mt-2 text-sm text-zinc-400">اسم کانال رو بنویس تا بین کانال‌های موجود پیداش کنیم.</p></div>
         {/* Search input */}
         <div className="relative mb-8">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
@@ -43,8 +44,7 @@ export default function Search() {
             placeholder="نام کانال را وارد کنید…"
             value={q}
             onChange={e => { setLimit(30); setParams({ q: e.target.value }, { replace: true }); }}
-            autoFocus
-            className="w-full bg-zinc-900 border border-white/8 rounded-2xl pr-12 pl-4 py-4 text-base text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/60 transition-colors"
+            className="w-full bg-[#151a27] border border-white/10 rounded-2xl pr-12 pl-4 py-4 text-base text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/60 transition-colors"
           />
         </div>
 
@@ -65,7 +65,7 @@ export default function Search() {
             <p className="text-sm text-zinc-500 mb-4">
               {results.length.toLocaleString('fa-IR')} نتیجه برای «{q}»
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {results.slice(0, limit).filter(ch => streamMap.has(ch.id)).map(ch => {
                 const stream = streamMap.get(ch.id)!;
                 const country = countryMap.get(ch.country);
