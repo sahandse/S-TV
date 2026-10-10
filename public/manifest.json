@@ -5,7 +5,7 @@
   "start_url": "/S-TV/",
   "scope": "/S-TV/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "theme_color": "#7c3aed",
   "background_color": "#08080e",
   "lang": "fa",
