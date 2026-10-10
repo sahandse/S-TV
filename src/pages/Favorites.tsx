@@ -22,14 +22,14 @@ export default function Favorites() {
   const favChannels = channels.filter(ch => favorites.has(ch.id) && streamMap.has(ch.id));
 
   return (
-    <div className="min-h-screen bg-[#08080e] pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="min-h-screen bg-[#07090f] pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
         <div className="flex items-center gap-3 mb-8">
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7 text-red-400">
             <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
           <div>
-            <h1 className="text-2xl font-black text-white">علاقه‌مندی‌ها</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">علاقه‌مندی‌ها</h1>
             <p className="text-sm text-zinc-500 mt-0.5">{favChannels.length.toLocaleString('fa-IR')} کانال</p>
           </div>
         </div>
@@ -39,8 +39,8 @@ export default function Favorites() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-16 h-16 text-zinc-700">
               <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
-            <p className="text-zinc-400 text-base">هنوز کانالی به علاقه‌مندی‌ها اضافه نکرده‌اید</p>
-            <p className="text-zinc-600 text-sm">روی آیکون قلب روی هر کانال کلیک کنید</p>
+            <p className="text-zinc-400 text-base">هنوز کانالی رو به علاقه‌مندی‌ها اضافه نکردی</p>
+            <p className="text-zinc-600 text-sm">روی قلب کنار هر کانال بزن تا اینجا نگهش داریم</p>
             <Link
               to="/"
               className="mt-4 bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold px-6 py-3 rounded-xl transition-all"
@@ -49,7 +49,7 @@ export default function Favorites() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {favChannels.map(ch => {
               const stream = streamMap.get(ch.id)!;
               const country = countryMap.get(ch.country);
