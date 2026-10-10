@@ -82,3 +82,13 @@
 :focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
 
 .compact-mode .group .h-28 { height: 5.5rem; }
+
+.tv-focus:focus-visible, .tv-shell button:focus-visible, .tv-shell a:focus-visible, .tv-shell input:focus-visible, .tv-shell select:focus-visible {
+  outline: 4px solid #c4b5fd !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 7px rgba(124, 58, 237, 0.24);
+}
+@media (min-width: 1200px) {
+  .tv-shell { font-size: 18px; }
+  .tv-shell button, .tv-shell a { min-height: 48px; }
+}
