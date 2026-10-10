@@ -35,7 +35,11 @@ export default function VideoPlayer({ url, title }: Props) {
       setErrorMsg(msg);
     };
 
-    if (Hls.isSupported()) {
+    const isHls = /\\.m3u8(?:[?#]|$)/i.test(url);
+    const isDash = /\\.mpd(?:[?#]|$)/i.test(url);
+    if (isDash) {
+      onError('این کانال از فرمت پخشی استفاده می‌کند که فعلاً در مرورگر پشتیبانی نمی‌شود.');
+    } else if (isHls && Hls.isSupported()) {
       const hls = new Hls({ enableWorker: true, lowLatencyMode: true, debug: false });
       hlsRef.current = hls;
 
@@ -55,7 +59,7 @@ export default function VideoPlayer({ url, title }: Props) {
 
       hls.attachMedia(video);
       hls.loadSource(url);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (!isHls || video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
       const onLoaded = () => { startPlayback(); };
       const onErr = () => onError('خطا در بارگذاری پخش.');
