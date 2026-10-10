@@ -31,7 +31,6 @@ const ITEMS = [
     ),
   },
   {
-  {
     to: '/genres',
     label: 'ژانرها',
     icon: (active: boolean) => (
