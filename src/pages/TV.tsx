@@ -89,6 +89,7 @@ export default function TV() {
   const changeChannel = (delta: number) => {
     if (!visible.length) return;
     const next = (currentIndex + delta + visible.length) % visible.length;
+    if (next >= count) setCount(Math.ceil((next + 1) / 60) * 60);
     choose(visible[next]);
   };
   return (
