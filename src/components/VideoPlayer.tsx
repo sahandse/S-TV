@@ -35,8 +35,8 @@ export default function VideoPlayer({ url, title }: Props) {
       setErrorMsg(msg);
     };
 
-    const isHls = /\\.m3u8(?:[?#]|$)/i.test(url);
-    const isDash = /\\.mpd(?:[?#]|$)/i.test(url);
+    const isHls = /\.m3u8(?:[?#]|$)/i.test(url);
+    const isDash = /\.mpd(?:[?#]|$)/i.test(url);
     if (isDash) {
       onError('این کانال از فرمت پخشی استفاده می‌کند که فعلاً در مرورگر پشتیبانی نمی‌شود.');
     } else if (isHls && Hls.isSupported()) {
