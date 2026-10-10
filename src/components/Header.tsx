@@ -23,6 +23,7 @@ export default function Header() {
     { to: '/genres', label: 'ژانرها' },
     { to: '/favorites', label: 'علاقه‌مندی‌ها' },
     { to: '/settings', label: 'تنظیمات' },
+    { to: '/tv', label: 'حالت تلویزیون' },
   ];
 
   return (
