@@ -11,6 +11,7 @@ export default function VideoPlayer({ url, title }: Props) {
   const hlsRef = useRef<Hls | null>(null);
   const [status, setStatus] = useState<'loading' | 'playing' | 'error'>('loading');
   const [errorMsg, setErrorMsg] = useState('');
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -32,7 +33,7 @@ export default function VideoPlayer({ url, title }: Props) {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setStatus('playing');
-        video.play().catch(() => {});
+        video.play().catch(() => { setStatus('loading'); });
       });
 
       hls.on(Hls.Events.ERROR, (_, data) => {
@@ -43,7 +44,7 @@ export default function VideoPlayer({ url, title }: Props) {
       hls.attachMedia(video);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
-      const onLoaded = () => { setStatus('playing'); video.play().catch(() => {}); };
+      const onLoaded = () => { setStatus('playing'); video.play().catch(() => { setStatus('loading'); }); };
       const onErr = () => onError('خطا در بارگذاری پخش.');
       video.addEventListener('loadedmetadata', onLoaded, { once: true });
       video.addEventListener('error', onErr, { once: true });
@@ -56,7 +57,7 @@ export default function VideoPlayer({ url, title }: Props) {
     }
 
     return () => { hlsRef.current?.destroy(); hlsRef.current = null; };
-  }, [url]);
+  }, [url, retryKey]);
 
   return (
     <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
@@ -71,6 +72,7 @@ export default function VideoPlayer({ url, title }: Props) {
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 gap-4 p-6">
           <div className="text-5xl">📡</div>
           <p className="text-zinc-300 text-sm text-center max-w-xs leading-relaxed">{errorMsg}</p>
+          <button onClick={() => setRetryKey(v => v + 1)} className="rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white hover:bg-violet-500">تلاش دوباره برای پخش</button>
           <a
             href={url}
             target="_blank"
@@ -82,7 +84,7 @@ export default function VideoPlayer({ url, title }: Props) {
         </div>
       )}
 
-      <video ref={videoRef} controls className="w-full h-full" playsInline aria-label={title} />
+      <video ref={videoRef} controls className="w-full h-full" playsInline aria-label={title} onPlaying={() => setStatus('playing')} />
     </div>
   );
 }
