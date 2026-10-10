@@ -39,18 +39,37 @@ export default function TV() {
     addRecent(ch.id);
   };
   const currentIndex = visible.findIndex(ch => ch.id === selectedId);
+  // Move focus by actual screen position, not DOM order (important for TV remotes).
+  const moveFocus = (direction: 'up' | 'down' | 'left' | 'right') => {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus'))
+      .filter(node => !node.hasAttribute('disabled') && node.getClientRects().length > 0);
+    if (!nodes.length) return;
+    const active = document.activeElement as HTMLElement;
+    const origin = nodes.includes(active) ? active : null;
+    if (!origin) { nodes[0].focus(); return; }
+    const rect = origin.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const candidates = nodes.filter(node => node !== origin).map(node => {
+      const box = node.getBoundingClientRect();
+      const dx = box.left + box.width / 2 - x;
+      const dy = box.top + box.height / 2 - y;
+      const forward = direction === 'right' ? dx : direction === 'left' ? -dx : direction === 'down' ? dy : -dy;
+      const cross = direction === 'left' || direction === 'right' ? Math.abs(dy) : Math.abs(dx);
+      return { node, forward, score: forward + cross * 2.5 };
+    }).filter(item => item.forward > 8).sort((a, b) => a.score - b.score);
+    const target = candidates[0]?.node;
+    target?.focus();
+    target?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  };
   useEffect(() => {
     const isTyping = (target: EventTarget | null) => target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement;
     const onKey = (event: KeyboardEvent) => {
       if (isTyping(event.target)) return;
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
-      const focusables = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus:not([disabled])'));
-      const current = focusables.indexOf(document.activeElement as HTMLElement);
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         event.preventDefault();
-        const next = focusables.length ? focusables[(current + (event.key === 'ArrowDown' || event.key === 'ArrowLeft' ? 1 : -1) + focusables.length) % focusables.length] : undefined;
-        next?.focus();
-        next?.scrollIntoView({block: 'nearest'});
+        moveFocus(event.key.replace('Arrow', '').toLowerCase() as 'up' | 'down' | 'left' | 'right');
       } else if (event.key === 'Escape' || event.key === 'Backspace') {
         if (event.key === 'Backspace') event.preventDefault();
         navigate('/');
@@ -70,11 +89,11 @@ export default function TV() {
         setControllerReady(true);
         const up = Boolean(pad.buttons[12]?.pressed) || (pad.axes[1] ?? 0) < -0.65;
         const down = Boolean(pad.buttons[13]?.pressed) || (pad.axes[1] ?? 0) > 0.65;
-        const direction = down ? 1 : up ? -1 : 0;
+        const left = Boolean(pad.buttons[14]?.pressed) || (pad.axes[0] ?? 0) < -0.65;
+        const right = Boolean(pad.buttons[15]?.pressed) || (pad.axes[0] ?? 0) > 0.65;
+        const direction = up ? 1 : down ? 2 : left ? 3 : right ? 4 : 0;
         if (direction && (direction !== lastDirection || time - lastTime > 280)) {
-          const options = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus')).filter(el => el.getClientRects().length > 0);
-          const active = options.indexOf(document.activeElement as HTMLElement);
-          if (options.length) options[(active + direction + options.length) % options.length]?.focus();
+          moveFocus(direction === 1 ? 'up' : direction === 2 ? 'down' : direction === 3 ? 'left' : 'right');
           lastTime = time;
         }
         lastDirection = direction;
