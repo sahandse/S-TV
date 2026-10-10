@@ -126,8 +126,8 @@ export default function PlayerModal({ channel, stream, logoUrl, countryName, cou
               ))}
             </div>
 
-            {stream.title && stream.title !== channel.name && (
-              <p className="text-xs text-zinc-500 mt-1.5 line-clamp-1">{stream.title}</p>
+            {selectedStream.title && selectedStream.title !== channel.name && (
+              <p className="text-xs text-zinc-500 mt-1.5 line-clamp-1">{selectedStream.title}</p>
             )}
           </div>
 
