@@ -9,12 +9,11 @@ import type { Channel } from '../types';
 
 export default function TV() {
   const navigate = useNavigate();
-  const { channels, streamMap, streamsByChannel, logoMap, guideMap } = useIPTV();
+  const { channels, streamMap, logoMap, guideMap } = useIPTV();
   const { favorites, addRecent, toggleFav } = useUser();
   const [filter, setFilter] = useState('');
   const [onlyFav, setOnlyFav] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedSource, setSelectedSource] = useState('');
   const [guideOpen, setGuideOpen] = useState(false);
   const [count, setCount] = useState(60);
   const [controllerReady, setControllerReady] = useState(false);
@@ -24,11 +23,9 @@ export default function TV() {
     (!filter.trim() || ch.name.toLocaleLowerCase().includes(filter.trim().toLocaleLowerCase()))
   ), [available, favorites, onlyFav, filter]);
   const selected: Channel | undefined = available.find(ch => ch.id === selectedId);
-  const sourceList = selected ? streamsByChannel.get(selected.id) ?? [] : [];
-  const activeSource = sourceList.find(s => s.url === selectedSource) ?? (selected ? streamMap.get(selected.id) : undefined);
+  const activeSource = selected ? streamMap.get(selected.id) : undefined;
   const choose = (ch: Channel) => {
     setSelectedId(ch.id);
-    setSelectedSource(streamMap.get(ch.id)?.url ?? '');
     setGuideOpen(false);
     addRecent(ch.id);
   };
@@ -87,18 +84,18 @@ export default function TV() {
     choose(visible[next]);
   };
   return (
-    <div className="tv-shell min-h-screen bg-[#080a13] text-white" onKeyDown={e => {
+    <div className="tv-shell min-h-screen bg-[#07090f] text-white" onKeyDown={e => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
       if (e.key === 'PageUp') { e.preventDefault(); changeChannel(-1); }
       if (e.key === 'PageDown') { e.preventDefault(); changeChannel(1); }
     }}>
-      <div className="mx-auto max-w-[1800px] px-3 py-4 sm:px-7 sm:py-6">
+      <div className="mx-auto max-w-[1800px] px-4 py-5 sm:px-10 sm:py-9">
         <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div><h1 className="text-2xl font-black sm:text-4xl">📺 تلویزیون زنده</h1><p className="mt-1 text-xs text-zinc-400">جهت‌ها: حرکت · Enter / X: انتخاب · PageUp / PageDown: تعویض کانال</p>{controllerReady && <p className="mt-1 text-xs text-emerald-400">دسته توسط مرورگر شناسایی شد</p>}</div>
+          <div><h1 className="text-2xl font-black tracking-tight sm:text-4xl">📺 تلویزیون زنده</h1><p className="mt-1 text-xs text-zinc-400">جهت‌ها: حرکت · Enter / X: انتخاب · PageUp / PageDown: تعویض کانال</p>{controllerReady && <p className="mt-1 text-xs text-emerald-400">دسته توسط مرورگر شناسایی شد</p>}</div>
           <Link to="/" className="tv-focus rounded-xl border border-white/15 px-5 py-3 text-sm font-bold text-zinc-200">بازگشت به خانه</Link>
         </header>
-        <div className="grid gap-5 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)]">
-          <aside className="order-2 min-w-0 rounded-2xl border border-white/10 bg-[#111522] p-3 lg:order-1">
+        <div className="grid gap-5 lg:grid-cols-[minmax(310px,360px)_minmax(0,1fr)]">
+          <aside className="order-2 min-w-0 rounded-3xl border border-white/10 bg-[#131722] p-4 lg:order-1">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="font-bold">کانال‌ها <span className="text-xs text-zinc-400">({visible.length.toLocaleString('fa-IR')})</span></h2>
               <button type="button" onClick={() => { setOnlyFav(v => !v); setCount(60); }} aria-pressed={onlyFav} className={`tv-focus rounded-lg px-3 py-2 text-xs ${onlyFav ? 'bg-violet-600' : 'bg-white/10'}`}>♥ علاقه‌مندی‌ها</button>
@@ -120,15 +117,15 @@ export default function TV() {
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
               {selected && activeSource ? <VideoPlayer key={selected.id} url={activeSource.url} title={selected.name} /> : <div className="flex aspect-video flex-col items-center justify-center gap-3 text-center text-zinc-300"><span className="text-5xl">📡</span><p className="px-5">یک کانال از فهرست انتخاب کنید</p></div>}
             </div>
-            {selected && <div className="rounded-2xl border border-white/10 bg-[#111522] p-4 sm:p-6">
+            {selected && <div className="rounded-3xl border border-white/10 bg-[#131722] p-5 sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="min-w-0"><h2 className="truncate text-xl font-bold">{selected.name}</h2><p className="mt-1 text-xs text-zinc-400">منابع موجود: {sourceList.length.toLocaleString('fa-IR')} — وجود لینک به معنی پخش قطعی نیست</p></div>
+                <div className="min-w-0"><h2 className="truncate text-xl font-bold">{selected.name}</h2><p className="mt-1 text-xs text-zinc-400">تماشای زنده · با کنترل‌های ساده و راحت</p></div>
                 <div className="flex gap-2">
                   <button type="button" onClick={() => changeChannel(-1)} className="tv-focus rounded-xl border border-white/10 px-4 py-3">قبلی</button>
                   <button type="button" onClick={() => changeChannel(1)} className="tv-focus rounded-xl border border-white/10 px-4 py-3">بعدی</button>
                 </div>
               </div>
-              {sourceList.length > 1 && <label className="mt-4 block text-xs text-zinc-300">انتخاب منبع واقعی<select value={activeSource?.url ?? ''} onChange={e => setSelectedSource(e.target.value)} className="tv-focus mt-2 block w-full rounded-xl border border-white/10 bg-[#1d2334] p-3 text-sm">{sourceList.map((source, index) => <option value={source.url} key={source.url}>{'منبع ' + (index + 1) + (source.quality ? ' • ' + source.quality : '')}</option>)}</select></label>}
+
               <button type="button" onClick={() => setGuideOpen(v => !v)} aria-expanded={guideOpen} className="tv-focus mt-4 w-full rounded-xl border border-white/10 bg-white/5 p-3 text-right text-sm font-bold">📅 راهنمای برنامه‌ها {guideOpen ? '−' : '+'}</button>
               {guideOpen && <div className="mt-3"><EPGGuide channelId={selected.id} fallbackUrl={guideMap.get(selected.id)} /></div>}
             </div>}
