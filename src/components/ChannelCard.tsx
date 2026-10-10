@@ -46,13 +46,9 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-label={`پخش ${channel.name}`}
-      onClick={onClick}
-      onKeyDown={e => { if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick(); } }}
-      className="group relative cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-400 w-full text-right rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 hover:border-violet-500/40 transition-all duration-250 hover:scale-[1.03] hover:shadow-xl hover:shadow-violet-900/20 card-press"
+      className="group relative w-full text-right rounded-2xl overflow-hidden bg-[#151a27] border border-white/10 hover:border-violet-400/50 focus-within:border-violet-400/70 transition-all hover:shadow-xl hover:shadow-violet-900/20 card-press"
     >
+      <button type="button" onClick={onClick} aria-label={`پخش ${channel.name}`} className="absolute inset-0 z-10 w-full rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-300" />
       {/* Top visual section */}
       <div className={`relative h-28 bg-gradient-to-br ${grad} flex items-center justify-center`}>
         <div className="absolute inset-0 opacity-[0.03]"
@@ -62,14 +58,14 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
         <ChannelLogo url={logoUrl} name={channel.name} className="w-16 h-16 relative z-10" />
 
         {/* Live badge top-right */}
-        <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-1 pointer-events-none">
           <span className="flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
             <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
-            زنده
+            پخش
           </span>
           {hasGuide && (
             <span className="flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-              EPG
+              راهنما
             </span>
           )}
         </div>
@@ -88,17 +84,17 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
           className={`absolute bottom-2 left-2 w-9 h-9 rounded-full flex items-center justify-center transition-all z-20 ${
             fav
               ? 'bg-red-500/80 text-white'
-              : 'bg-black/40 text-zinc-400 opacity-100 hover:text-red-400'
+              : 'bg-black/70 text-zinc-200 hover:text-red-300'
           }`}
           aria-label={fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
         >
-          <svg viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+          <svg viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
         </button>
 
         {/* Play overlay on hover */}
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 pointer-events-none bg-black/50 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex items-center justify-center">
           <div className="w-12 h-12 bg-violet-600 rounded-full flex items-center justify-center shadow-2xl shadow-violet-900">
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-white mr-[-2px]">
               <path d="M8 5v14l11-7z" />
@@ -108,8 +104,8 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
       </div>
 
       {/* Info section */}
-      <div className="p-2.5">
-        <p className="text-[13px] font-semibold text-white leading-tight line-clamp-1 group-hover:text-violet-200 transition-colors">
+      <div className="p-3.5">
+        <p className="text-sm font-semibold text-white leading-tight line-clamp-1 group-hover:text-violet-200 transition-colors">
           {channel.name}
         </p>
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
