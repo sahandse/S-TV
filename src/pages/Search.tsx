@@ -15,6 +15,7 @@ function getFlagEmoji(code: string) {
 export default function Search() {
   const [params, setParams] = useSearchParams();
   const q = params.get('q') ?? '';
+  const [limit, setLimit] = useState(30);
   const [playing, setPlaying] = useState<Playing | null>(null);
   const { channels, streamMap, logoMap, countries } = useIPTV();
   const countryMap = new Map(countries.map(c => [c.code, c]));
@@ -41,7 +42,7 @@ export default function Search() {
             type="text"
             placeholder="نام کانال را وارد کنید…"
             value={q}
-            onChange={e => setParams({ q: e.target.value })}
+            onChange={e => { setLimit(30); setParams({ q: e.target.value }, { replace: true }); }}
             autoFocus
             className="w-full bg-zinc-900 border border-white/8 rounded-2xl pr-12 pl-4 py-4 text-base text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500/60 transition-colors"
           />
@@ -65,7 +66,7 @@ export default function Search() {
               {results.length.toLocaleString('fa-IR')} نتیجه برای «{q}»
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-              {results.map(ch => {
+              {results.slice(0, limit).filter(ch => streamMap.has(ch.id)).map(ch => {
                 const stream = streamMap.get(ch.id)!;
                 const country = countryMap.get(ch.country);
                 return (
@@ -80,6 +81,11 @@ export default function Search() {
                 );
               })}
             </div>
+            {results.length > limit && (
+              <div className="flex justify-center mt-8">
+                <button onClick={() => setLimit(v => v + 30)} className="rounded-xl border border-violet-500/30 bg-violet-500/10 px-6 py-3 text-sm font-bold text-violet-200 hover:bg-violet-500/20">نمایش ۳۰ کانال دیگر</button>
+              </div>
+            )}
           </>
         )}
       </div>
