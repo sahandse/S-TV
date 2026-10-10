@@ -18,7 +18,8 @@ export interface Stream {
   quality: string | null;
   referrer: string | null;
   user_agent: string | null;
-  label: string | null;
+  label?: string | null;
+  labels?: string[];
 }
 
 export interface Logo {
@@ -54,7 +55,10 @@ export interface Guide {
   channel: string;
   site: string;
   site_id: string;
-  site_url: string;
+  site_name?: string;
+  site_url?: string;
+  feed?: string | null;
+  sources?: { host: string; url: string; format: string }[];
   lang: string;
 }
 
