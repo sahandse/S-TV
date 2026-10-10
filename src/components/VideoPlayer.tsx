@@ -13,6 +13,7 @@ export default function VideoPlayer({ url, title }: Props) {
   const [errorMsg, setErrorMsg] = useState('');
   const [retryKey, setRetryKey] = useState(0);
   const [requiresTap, setRequiresTap] = useState(false);
+  const recoveryCount = useRef(0);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -21,6 +22,7 @@ export default function VideoPlayer({ url, title }: Props) {
     setStatus('loading');
     setErrorMsg('');
     setRequiresTap(false);
+    recoveryCount.current = 0;
     hlsRef.current?.destroy();
     hlsRef.current = null;
     video.pause();
@@ -43,7 +45,8 @@ export default function VideoPlayer({ url, title }: Props) {
 
       hls.on(Hls.Events.ERROR, (_, data) => {
         if (!data.fatal) return;
-        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR && recoveryCount.current < 2) {
+          recoveryCount.current += 1;
           hls.recoverMediaError();
         } else {
           onError('اتصال به این کانال برقرار نشد. دوباره تلاش کن یا کانال دیگه‌ای انتخاب کن.');
@@ -74,7 +77,7 @@ export default function VideoPlayer({ url, title }: Props) {
 
   return (
     <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
-      {status === 'loading' && (
+      {status === 'loading' && !requiresTap && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950 gap-3">
           <div className="w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-zinc-400 text-sm">در حال اتصال به پخش…</p>
@@ -93,7 +96,7 @@ export default function VideoPlayer({ url, title }: Props) {
         </div>
       )}
 
-      <video ref={videoRef} controls className="w-full h-full" playsInline aria-label={title} onPlaying={() => { setRequiresTap(false); setStatus('playing'); }} onWaiting={() => setStatus('loading')} onError={() => { if (videoRef.current?.src) { setErrorMsg('پخش متوقف شد. دوباره تلاش کن.'); setStatus('error'); } }} />
+      <video ref={videoRef} controls className="w-full h-full" playsInline aria-label={title} onPlaying={() => { setRequiresTap(false); setStatus('playing'); }} onWaiting={() => { if (!requiresTap) setStatus('loading'); }} onError={() => { if (videoRef.current?.src) { setErrorMsg('پخش متوقف شد. دوباره تلاش کن.'); setStatus('error'); } }} />
     </div>
   );
 }
