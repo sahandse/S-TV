@@ -43,21 +43,21 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
 
   return (
     <div
-      className="group relative w-full text-right rounded-2xl overflow-hidden bg-[#151a27] border border-white/10 hover:border-violet-400/50 focus-within:border-violet-400/70 transition-all hover:shadow-xl hover:shadow-violet-900/20 card-press"
+      className="group relative w-full text-right rounded-[1.35rem] overflow-hidden bg-[#151a25] border border-white/10 hover:border-violet-400/50 focus-within:border-violet-400/70 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 card-press"
     >
-      <button type="button" onClick={onClick} aria-label={`پخش ${channel.name}`} className="absolute inset-0 z-10 w-full rounded-2xl focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-300" />
+      <button type="button" onClick={onClick} aria-label={`پخش ${channel.name}`} className="absolute inset-0 z-10 w-full rounded-[1.35rem] focus-visible:outline focus-visible:outline-4 focus-visible:outline-violet-300" />
       {/* Top visual section */}
-      <div className={`relative h-28 bg-gradient-to-br ${grad} flex items-center justify-center`}>
+      <div className={`relative h-32 bg-gradient-to-br ${grad} flex items-center justify-center`}>
         <div className="absolute inset-0 opacity-[0.03]"
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }}
         />
 
-        <ChannelLogo url={logoUrl} name={channel.name} className="w-16 h-16 relative z-10" />
+        <ChannelLogo url={logoUrl} name={channel.name} className="w-[4.5rem] h-[4.5rem] relative z-10" />
 
-        {/* Live badge top-right */}
+        {/* Channel metadata */}
         <div className="absolute top-2 right-2 flex flex-col items-end gap-1 pointer-events-none">
-          <span className="flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-            <span className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
+          <span className="flex items-center gap-1 bg-black/35 border border-white/10 text-zinc-200 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+            <span className="w-1 h-1 bg-emerald-400 rounded-full" />
             کانال
           </span>
         </div>
@@ -96,7 +96,7 @@ export default function ChannelCard({ channel, stream, logoUrl, countryFlag, onC
       </div>
 
       {/* Info section */}
-      <div className="p-3.5">
+      <div className="p-4">
         <p className="text-sm font-semibold text-white leading-tight line-clamp-1 group-hover:text-violet-200 transition-colors">
           {channel.name}
         </p>
