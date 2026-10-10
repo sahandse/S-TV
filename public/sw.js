@@ -1,36 +1,42 @@
-const CACHE = 's-tv-v1';
-const PRECACHE = ['/S-TV/', '/S-TV/index.html'];
+const CACHE = 's-tv-shell-v2';
+const APP_ROOT = '/S-TV/';
+const PRECACHE = [APP_ROOT, APP_ROOT + 'index.html'];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting())
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key.startsWith('s-tv-') && key !== CACHE).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
-});
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin || !url.pathname.startsWith(APP_ROOT)) return;
 
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(async () => (await caches.match(APP_ROOT)) || (await caches.match(APP_ROOT + 'index.html')) || Response.error())
+    );
+    return;
+  }
 
-  // Never cache iptv-org API calls — always fresh
-  if (url.hostname === 'iptv-org.github.io') return;
-
-  e.respondWith(
-    caches.match(e.request).then(cached => {
+  if (!['script', 'style', 'font', 'image', 'manifest'].includes(request.destination)) return;
+  event.respondWith(
+    caches.match(request).then(async cached => {
       if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (res.ok && e.request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => cached ?? new Response('Offline', { status: 503 }));
+      const response = await fetch(request);
+      if (response.ok) {
+        const cache = await caches.open(CACHE);
+        await cache.put(request, response.clone());
+      }
+      return response;
     })
   );
 });
