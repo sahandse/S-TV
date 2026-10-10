@@ -16,7 +16,7 @@ export default function TV() {
   const [onlyFav, setOnlyFav] = useState(false);
   const [category, setCategory] = useState('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [guideOpen, setGuideOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(true);
   const [count, setCount] = useState(60);
   const [controllerReady, setControllerReady] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
@@ -35,7 +35,7 @@ export default function TV() {
   const activeSource = selected ? streamMap.get(selected.id) : undefined;
   const choose = (ch: Channel) => {
     setSelectedId(ch.id);
-    setGuideOpen(false);
+    setGuideOpen(true);
     addRecent(ch.id);
   };
   const currentIndex = visible.findIndex(ch => ch.id === selectedId);
@@ -138,18 +138,34 @@ export default function TV() {
             <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black shadow-2xl shadow-black/50">
               {selected && activeSource ? <VideoPlayer key={selected.id} url={activeSource.url} title={selected.name} /> : <div className="flex aspect-video flex-col items-center justify-center gap-4 bg-[radial-gradient(ellipse_at_center,rgba(104,65,195,.20),transparent_70%)] text-center text-zinc-300"><span className="text-5xl">📡</span><p className="px-5">از لیست کناری یک کانال انتخاب کن و تماشا رو شروع کن</p></div>}
             </div>
-            {selected && <div className="rounded-3xl border border-white/10 bg-[#131722] p-5 sm:p-7">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="min-w-0"><h2 className="truncate text-xl font-bold">{selected.name}</h2><p className="mt-1 text-xs text-zinc-400">تماشای زنده · با کنترل‌های ساده و راحت</p></div>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => changeChannel(-1)} className="tv-focus rounded-xl border border-white/10 px-4 py-3">قبلی</button>
-                  <button type="button" onClick={() => changeChannel(1)} className="tv-focus rounded-xl border border-white/10 px-4 py-3">بعدی</button>
+            {selected && <section className="rounded-[1.75rem] border border-white/10 bg-[#121726] p-5 shadow-xl shadow-black/20 sm:p-7" aria-label="جزئیات کانال">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+                  <ChannelLogo name={selected.name} url={logoMap.get(selected.id)} className="h-12 w-12" />
                 </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-xl font-black text-white sm:text-2xl">{selected.name}</h2>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-zinc-400">
+                    {selected.country && <span className="rounded-lg bg-white/5 px-2 py-1">{selected.country}</span>}
+                    {selected.categories.slice(0, 2).map(cat => <span key={cat} className="rounded-lg bg-violet-500/10 px-2 py-1 text-violet-200">{FA_CATEGORIES[cat] ?? cat}</span>)}
+                  </div>
+                </div>
+                <button type="button" onClick={() => toggleFav(selected.id)} aria-pressed={favorites.has(selected.id)} className="tv-focus rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold text-zinc-100" aria-label={favorites.has(selected.id) ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}>
+                  {favorites.has(selected.id) ? '♥ ذخیره شده' : '♡ علاقه‌مندی'}
+                </button>
               </div>
-
-              <button type="button" onClick={() => setGuideOpen(v => !v)} aria-expanded={guideOpen} className="tv-focus mt-4 w-full rounded-xl border border-white/10 bg-white/5 p-3 text-right text-sm font-bold">📅 راهنمای برنامه‌ها {guideOpen ? '−' : '+'}</button>
-              {guideOpen && <div className="mt-3"><EPGGuide channelId={selected.id} fallbackUrl={guideMap.get(selected.id)} /></div>}
-            </div>}
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => changeChannel(-1)} className="tv-focus rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold hover:bg-white/10">→ کانال قبلی</button>
+                <button type="button" onClick={() => changeChannel(1)} className="tv-focus rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold hover:bg-white/10">کانال بعدی ←</button>
+              </div>
+              <div className="mt-5 border-t border-white/10 pt-5">
+                <button type="button" onClick={() => setGuideOpen(v => !v)} aria-expanded={guideOpen} className="tv-focus flex w-full items-center justify-between rounded-xl py-2 text-right text-sm font-bold text-white">
+                  <span>📅 الان چی پخش می‌شه؟</span>
+                  <span className="text-xs text-violet-300">{guideOpen ? 'بستن −' : 'نمایش +'}</span>
+                </button>
+                {guideOpen && <div className="mt-3"><EPGGuide channelId={selected.id} fallbackUrl={guideMap.get(selected.id)} /></div>}
+              </div>
+            </section>}
           </main>
         </div>
       </div>
