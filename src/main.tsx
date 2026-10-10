@@ -13,6 +13,16 @@ createRoot(document.getElementById('root')!).render(
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/S-TV/sw.js').catch(() => {});
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !reloaded) {
+        reloaded = true;
+        window.location.reload();
+      }
+    });
+    navigator.serviceWorker.register('/S-TV/sw.js', { updateViaCache: 'none' })
+      .then(registration => registration.update())
+      .catch(() => {});
   });
 }
