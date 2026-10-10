@@ -19,6 +19,7 @@ export default function TV() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [count, setCount] = useState(60);
   const [controllerReady, setControllerReady] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const available = useMemo(() => channels.filter(ch => streamMap.has(ch.id)), [channels, streamMap]);
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -70,7 +71,7 @@ export default function TV() {
         const down = Boolean(pad.buttons[13]?.pressed) || (pad.axes[1] ?? 0) > 0.65;
         const direction = down ? 1 : up ? -1 : 0;
         if (direction && (direction !== lastDirection || time - lastTime > 280)) {
-          const options = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus'));
+          const options = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus')).filter(el => el.getClientRects().length > 0);
           const active = options.indexOf(document.activeElement as HTMLElement);
           options[(active + direction + options.length) % options.length]?.focus();
           lastTime = time;
@@ -88,7 +89,7 @@ export default function TV() {
 
   const changeChannel = (delta: number) => {
     if (!visible.length) return;
-    const next = (currentIndex + delta + visible.length) % visible.length;
+    const next = (currentIndex < 0 ? (delta > 0 ? 0 : visible.length - 1) : (currentIndex + delta + visible.length) % visible.length);
     if (next >= count) setCount(Math.ceil((next + 1) / 60) * 60);
     choose(visible[next]);
   };
@@ -109,10 +110,11 @@ export default function TV() {
               <h2 className="font-bold">کانال‌ها <span className="text-xs text-zinc-400">({visible.length.toLocaleString('fa-IR')})</span></h2>
               <button type="button" onClick={() => { setOnlyFav(v => !v); setCount(60); }} aria-pressed={onlyFav} className={`tv-focus rounded-lg px-3 py-2 text-xs ${onlyFav ? 'bg-violet-600' : 'bg-white/10'}`}>♥ علاقه‌مندی‌ها</button>
             </div>
-            <div className="mb-3 flex gap-2 overflow-x-auto pb-2" aria-label="دسته‌بندی کانال‌ها">
+            <button type="button" className="tv-focus mb-3 flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold" aria-expanded={showCategories} onClick={() => setShowCategories(v => !v)}>🗂️ دسته‌بندی: {category === "all" ? "همه کانال‌ها" : (FA_CATEGORIES[category] ?? category)} <span>{showCategories ? "−" : "+"}</span></button>
+            {showCategories && <div className="mb-3 flex gap-2 overflow-x-auto pb-2" aria-label="دسته‌بندی کانال‌ها">
               <button type="button" className={`tv-focus shrink-0 rounded-xl px-4 py-3 text-sm font-bold ${category === 'all' ? 'bg-violet-600 text-white' : 'bg-white/5 text-zinc-300'}`} aria-pressed={category === 'all'} onClick={() => {setCategory('all');setCount(60);}}>همه</button>
               {categoryCounts.map(([id, total]) => <button key={id} type="button" aria-pressed={category === id} className={`tv-focus shrink-0 rounded-xl px-4 py-3 text-sm font-bold ${category === id ? 'bg-violet-600 text-white' : 'bg-white/5 text-zinc-300'}`} onClick={() => {setCategory(id);setCount(60);}}>{FA_CATEGORIES[id] ?? id} <span className="text-xs opacity-70">{total.toLocaleString('fa-IR')}</span></button>)}
-            </div>
+            </div>}
             <input type="search" value={filter} onChange={e => { setFilter(e.target.value); setCount(60); }} placeholder="جستجوی کانال واقعی…" aria-label="جستجوی کانال" className="tv-focus mb-3 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm" />
             <div className="tv-list max-h-[52vh] space-y-1 overflow-y-auto lg:max-h-[65vh]">
               {visible.slice(0, count).map(ch => <div key={ch.id} className="flex items-center gap-1">
