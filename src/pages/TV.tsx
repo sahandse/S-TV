@@ -43,11 +43,12 @@ export default function TV() {
     const isTyping = (target: EventTarget | null) => target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement;
     const onKey = (event: KeyboardEvent) => {
       if (isTyping(event.target)) return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
       const focusables = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus:not([disabled])'));
       const current = focusables.indexOf(document.activeElement as HTMLElement);
       if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
         event.preventDefault();
-        const next = focusables[(current + (event.key === 'ArrowDown' || event.key === 'ArrowLeft' ? 1 : -1) + focusables.length) % focusables.length];
+        const next = focusables.length ? focusables[(current + (event.key === 'ArrowDown' || event.key === 'ArrowLeft' ? 1 : -1) + focusables.length) % focusables.length] : undefined;
         next?.focus();
         next?.scrollIntoView({block: 'nearest'});
       } else if (event.key === 'Escape' || event.key === 'Backspace') {
@@ -73,7 +74,7 @@ export default function TV() {
         if (direction && (direction !== lastDirection || time - lastTime > 280)) {
           const options = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus')).filter(el => el.getClientRects().length > 0);
           const active = options.indexOf(document.activeElement as HTMLElement);
-          options[(active + direction + options.length) % options.length]?.focus();
+          if (options.length) options[(active + direction + options.length) % options.length]?.focus();
           lastTime = time;
         }
         lastDirection = direction;
