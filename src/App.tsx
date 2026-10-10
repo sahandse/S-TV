@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { IPTVProvider, useIPTV } from './context/IPTVContext';
 import { UserProvider } from './context/UserContext';
 import Header from './components/Header';
@@ -14,13 +14,15 @@ import ErrorPage from './pages/ErrorPage';
 
 function AppRoutes() {
   const { loading, error } = useIPTV();
+  const { pathname } = useLocation();
+  const tvMode = pathname === '/tv';
 
   if (loading) return <Loading />;
   if (error) return <ErrorPage message={error} />;
 
   return (
     <div className="min-h-screen bg-[#08080e]">
-      <Header />
+      {!tvMode && <Header />}
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -34,7 +36,7 @@ function AppRoutes() {
           <Route path="/genre/:id" element={<Browse mode="category" />} />
         </Routes>
       </main>
-      <BottomNav />
+      {!tvMode && <BottomNav />}
     </div>
   );
 }
