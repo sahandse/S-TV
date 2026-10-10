@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useIPTV } from '../context/IPTVContext';
 import { useUser } from '../context/UserContext';
@@ -16,7 +16,6 @@ export default function TV() {
   const [selectedSource, setSelectedSource] = useState('');
   const [guideOpen, setGuideOpen] = useState(false);
   const [count, setCount] = useState(60);
-  const listRef = useRef<HTMLDivElement>(null);
   const [controllerReady, setControllerReady] = useState(false);
   const available = useMemo(() => channels.filter(ch => streamMap.has(ch.id)), [channels, streamMap]);
   const visible = useMemo(() => available.filter(ch =>
@@ -39,9 +38,9 @@ export default function TV() {
       if (isTyping(event.target)) return;
       const focusables = Array.from(document.querySelectorAll<HTMLElement>('.tv-shell .tv-focus:not([disabled])'));
       const current = focusables.indexOf(document.activeElement as HTMLElement);
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
         event.preventDefault();
-        const next = focusables[(current + (event.key === 'ArrowDown' ? 1 : -1) + focusables.length) % focusables.length];
+        const next = focusables[(current + (event.key === 'ArrowDown' || event.key === 'ArrowLeft' ? 1 : -1) + focusables.length) % focusables.length];
         next?.focus();
         next?.scrollIntoView({block: 'nearest'});
       } else if (event.key === 'Escape' || event.key === 'Backspace') {
@@ -56,6 +55,7 @@ export default function TV() {
     let frame = 0;
     let lastDirection = 0;
     let lastTime = 0;
+    let lastConfirm = false;
     const poll = (time: number) => {
       const pad = navigator.getGamepads?.().find(Boolean);
       if (pad) {
@@ -70,10 +70,9 @@ export default function TV() {
           lastTime = time;
         }
         lastDirection = direction;
-        if (pad.buttons[0]?.pressed && time - lastTime > 350 && document.activeElement instanceof HTMLElement) {
-          document.activeElement.click();
-          lastTime = time;
-        }
+        const confirm = Boolean(pad.buttons[0]?.pressed);
+        if (confirm && !lastConfirm && document.activeElement instanceof HTMLElement) document.activeElement.click();
+        lastConfirm = confirm;
       }
       frame = requestAnimationFrame(poll);
     };
@@ -104,7 +103,7 @@ export default function TV() {
               <button type="button" onClick={() => { setOnlyFav(v => !v); setCount(60); }} aria-pressed={onlyFav} className={`tv-focus rounded-lg px-3 py-2 text-xs ${onlyFav ? 'bg-violet-600' : 'bg-white/10'}`}>♥ علاقه‌مندی‌ها</button>
             </div>
             <input type="search" value={filter} onChange={e => { setFilter(e.target.value); setCount(60); }} placeholder="جستجوی کانال واقعی…" aria-label="جستجوی کانال" className="tv-focus mb-3 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm" />
-            <div ref={listRef} className="tv-list max-h-[52vh] space-y-1 overflow-y-auto lg:max-h-[65vh]">
+            <div className="tv-list max-h-[52vh] space-y-1 overflow-y-auto lg:max-h-[65vh]">
               {visible.slice(0, count).map(ch => <div key={ch.id} className="flex items-center gap-1">
                 <button type="button" onClick={() => choose(ch)} className={`tv-focus flex min-w-0 flex-1 items-center gap-3 rounded-xl p-3 text-right transition-colors ${ch.id === selectedId ? 'bg-violet-600/35 ring-1 ring-violet-400' : 'hover:bg-white/10'}`}>
                   <ChannelLogo name={ch.name} url={logoMap.get(ch.id)} className="h-10 w-10 shrink-0" />
