@@ -53,6 +53,11 @@ export default function Settings() {
           <h2 className="font-bold text-white">مصرف اینترنت</h2>
           <p className="mt-1 text-xs leading-6 text-zinc-400">پخش زنده از سرویس‌های اصلی انجام می‌شود. مصرف اینترنت به کیفیت و منبع انتخابی وابسته است؛ در صورت موجود بودن چند منبع می‌توانید از پنجره پخش آن‌ها را تغییر دهید.</p>
         </div>
+        <div className="rounded-2xl border border-white/10 bg-zinc-900/70 p-5">
+          <h2 className="font-bold text-white">نصب S-TV روی آیفون</h2>
+          <p className="mt-2 text-xs leading-7 text-zinc-400">سایت را در Safari باز کنید، از منوی اشتراک‌گذاری گزینه «Add to Home Screen» را انتخاب کنید و سپس «Add» را بزنید. پخش زنده به اینترنت نیاز دارد.</p>
+          <p className="mt-2 text-xs text-zinc-500">در اندروید نیز می‌توانید از منوی مرورگر گزینه نصب برنامه یا افزودن به صفحه اصلی را انتخاب کنید.</p>
+        </div>
       </section>
     </div>
   );
